@@ -33,8 +33,8 @@ AIRFLOW_UID=50000
 POSTGRES_HOST=postgres # YOUR_POSTGRES_HOST
 POSTGRES_PORT=5432 # YOUR_POSTGRES_PORT
 POSTGRES_DB=postgres # YOUR_POSTGRES_DB
-POSTGRES_USER=airflow # YOUR_POSTGRES_USER
 POSTGRES_SCHEMA=public # YOUR_POSTGRES_SCHEMA
+POSTGRES_USER=airflow # YOUR_POSTGRES_USER
 POSTGRES_PASSWORD=airflow # YOUR_POSTGRES_PASSWORD
 POSTGRES_URL="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"
 DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar,/tmp/drivers/hadoop-aws-3.3.1.jar,/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar
@@ -103,8 +103,7 @@ docker-compose up -d
     * Conn Id: `postgres_default`
     * Conn Type: `Postgres`
     * Host: `postgres` (El nombre del servicio de PostgreSQL (ej. *postgres*), o *host.docker.internal* si la base de datos está fuera de la red Docker.)
-    * Database: `base de datos de Postgres`
-    * Schema: `esquema de Postgres`
+    * Schema(Database): `nombre de la db de Postgres`
     * User: `usuario de Postgres`
     * Password: `contraseña de Postgres`
     * Port: `5432`
