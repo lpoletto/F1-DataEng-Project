@@ -133,6 +133,8 @@ docker-compose up -d
     * Key: `processed_data_dir`
     * Value: `/opt/airflow/data/processed`
 
+    **Nota:** Añadir cualquier otra variable que consideren necesaria para sus scripts o DAGs, dependiendo de los requerimientos específicos del proyecto.
+
 14. Ejecutar los DAGs.
 
 ## Comando utilies de Docker
