@@ -1,0 +1,4 @@
+spark_drivers/
+logs/
+data/
+.env
