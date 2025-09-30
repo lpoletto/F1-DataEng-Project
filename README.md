@@ -14,7 +14,7 @@ Este proyecto es una solución End-to-End de Ingeniería de Datos inspirada en l
 1. Crear las siguientes carpetas a la misma altura del `docker-compose.yml`.
 
 ```bash
-mkdir -p ./dags ./logs ./plugins ./config ./scripts ./spark_drivers ./data{raw,staging,processed} ./database
+mkdir -p ./dags ./logs ./plugins ./config ./scripts ./spark_drivers ./data/{raw,staging,processed} ./database
 ```
 
 2. Para evitar problemas de permisos en los volumenes de logs y data, solución recomendada:
