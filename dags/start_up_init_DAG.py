@@ -43,21 +43,18 @@ with DAG(
         task_id="create_bronze_bucket",
         python_callable=create_bucket,
         op_kwargs={"bucket_name": Variable.get("bronze_bucket_name"), "region": REGION},  # Pasa los argumentos
-
     )
 
     create_silver_bucket = PythonOperator(
         task_id="create_silver_bucket",
         python_callable=create_bucket,
         op_kwargs={"bucket_name": Variable.get("silver_bucket_name"), "region": REGION},  # Pasa los argumentos
-
     )
 
     create_gold_bucket = PythonOperator(
         task_id="create_gold_bucket",
         python_callable=create_bucket,
         op_kwargs={"bucket_name": Variable.get("gold_bucket_name"), "region": REGION},  # Pasa los argumentos
-
     )
 
     create_dwh_db = PythonOperator(

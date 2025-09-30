@@ -29,9 +29,9 @@ def create_bucket(bucket_name, region=None) -> bool:
         found = client.bucket_exists(minio_bucket)
         if not found:
             client.make_bucket(minio_bucket)
-            print(f"Bucket s3a://{minio_bucket} created.")
+            print(f"\n################## Bucket s3a://{minio_bucket} created. ##################\n")
         else:
-            print(f"Bucket {minio_bucket} already exists.")
+            print(f"\n################## Bucket {minio_bucket} already exists. ##################\n")
             return False
     except Exception as e:
         logging.error(e)
@@ -62,16 +62,16 @@ def create_a_database(db_name: str):
         with conn.cursor() as cur:
             cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (db_name,))
             if cur.fetchone():
-                print(f"La base de datos '{db_name}' ya existe.")
+                print(f"\n################## La base de datos '{db_name}' ya existe. ##################\n")
                 conn.close()
                 return db_name
             else:
                 cur.execute(f"CREATE DATABASE {db_name}")
-                print(f"Base de datos '{db_name}' creada exitosamente.")
+                print(f"\n################## Base de datos '{db_name}' creada exitosamente. ##################\n")
                 conn.close()
                 return db_name
     except Exception as e:
-        print(f"Error al crear la base de datos: {e}")
+        print(f"\n################## Error al crear la base de datos: {e} ##################\n")
         return None
     finally:
         conn.close()
@@ -85,10 +85,11 @@ def execute_sql_query(sql_query: str, db_name: str) -> None:
         with conn:
             with conn.cursor() as cur:
                 cur.execute(sql_query)
+                print(f"\n################## sql_query ##################\n")
                 print(sql_query)
-                print("\nQuery executed successfully")
+                print("\n################## Query executed successfully ##################\n")
     except Exception as e:
-        print(f"Error executing SQL query: {e}")
+        print(f"\n################## Error executing SQL query: {e} ##################\n")
     finally:
         conn.close()
-        print("Conexión cerrada.")
+        print("\n################## Conexión cerrada. ##################\n")
