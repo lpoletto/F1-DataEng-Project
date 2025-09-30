@@ -19,6 +19,10 @@ SQL_QUERY_CREATE_STG_SCHEMA = f"""
 CREATE SCHEMA IF NOT EXISTS {env["STG_SCHEMA"]};
 """
 
+# Define el nombre del bucket y la región (opcional)
+# BUCKET_NAME = Variable.get("bucket_name")
+REGION = None  # Cambia esto según sea necesario
+
 defaul_args = {
     "owner": "Lautaro Poletto",
     "start_date": datetime(2025, 9, 29),
@@ -26,16 +30,13 @@ defaul_args = {
     "retry_delay": timedelta(seconds=5),
 }
 
-# Define el nombre del bucket y la región (opcional)
-# BUCKET_NAME = Variable.get("bucket_name")
-REGION = None  # Cambia esto según sea necesario
-
 with DAG(
     dag_id="start_up_init_DAG",
     default_args=defaul_args,
     description="Si se enfoca en configurar el entorno de datos (esquemas, tablas, buckets)",
-    # schedule_interval="@daily",
-    catchup=False,
+    schedule_interval=None, # Se ejecuta manualmente
+    catchup=False, # No ejecuta tareas pasadas
+    tags=["setup"]
 ) as dag:
     
     # Tasks
