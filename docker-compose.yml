@@ -79,6 +79,7 @@ x-airflow-common:
 services:
   postgres:
     image: postgres:15
+    hostname: postgres
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -176,7 +177,7 @@ services:
   mysql:
     hostname: mysql
     image: mysql:8.0.32
-    container_name: mysql
+    # container_name: mysql-1
     env_file:
       - .env
     ports:
@@ -198,7 +199,7 @@ services:
   minio:
     hostname: minio
     image: minio/minio:RELEASE.2024-05-10T01-41-38Z
-    container_name: minio
+    # container_name: minio-1
     ports:
       - '9000:9000'
       - '9001:9001'
