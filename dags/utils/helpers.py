@@ -3,7 +3,7 @@ import logging
 from minio import Minio
 import psycopg2
 from datetime import datetime, timedelta
-from pyspark.sql import SparkSession
+
 
 
 def create_bucket(bucket_name, region=None):
@@ -115,22 +115,3 @@ def fetch_sql_query_result(sql_query: str, db_name: str):
     finally:
         conn.close()
     return results
-
-
-def get_spark_session() -> SparkSession:
-    """
-    Crea y retorna una session de Spark.
-    """
-    # Configuración de SparkSession con soporte s3 y MinIO
-    spark = SparkSession.builder \
-        .appName("PySpark's Cluster") \
-        .config("spark.jars", env["DRIVER_PATH"]) \
-        .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000") \
-        .config("spark.hadoop.fs.s3a.access.key", env["MINIO_ROOT_USER"]) \
-        .config("spark.hadoop.fs.s3a.secret.key", env["MINIO_ROOT_PASSWORD"]) \
-        .config("spark.hadoop.fs.s3a.path.style.access", "true") \
-        .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
-        .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
-        .getOrCreate()
-    
-    return spark
