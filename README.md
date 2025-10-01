@@ -135,7 +135,7 @@ docker-compose up -d
 
     **Nota:** Añadir cualquier otra variable que consideren necesaria para sus scripts o DAGs, dependiendo de los requerimientos específicos del proyecto.
 
-14. Ejecutar el DAG: start_up_init_DAG.py para configurar el entorno de datos (db,schemas,buckets).
+14. Ejecutar el DAG: start_up_init.py para configurar el entorno de datos (db,schemas,buckets).
 
 ## Comando utilies de Docker
 Si experimienta algun fallo o que no se visualice algun dag, reiniciar los servicios:
