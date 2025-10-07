@@ -20,13 +20,33 @@ with DAG(
     catchup=False,
 ) as dag:
     
+    execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
     # Tasks
     ingest_circuits_to_bronze = SparkSubmitOperator(
         task_id="ingest_circuits_to_bronze",
-        application=f'{Variable.get("spark_scripts_dir")}/1_circuits_ingest_bronze.py',
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_bronze.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
+        application_args=[execution_date],
     )
 
-    ingest_circuits_to_bronze
+    ingest_circuits_to_silver = SparkSubmitOperator(
+        task_id="ingest_circuits_to_silver",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_silver.py',
+        conn_id="spark_default",
+        dag=dag,
+        driver_class_path=Variable.get("driver_class_path"),
+        application_args=[execution_date],
+    )
+
+    # ingest_circuits_to_gold = SparkSubmitOperator(
+    #     task_id="ingest_circuits_to_gold",
+    #     application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_gold.py',
+    #     conn_id="spark_default",
+    #     dag=dag,
+    #     driver_class_path=Variable.get("driver_class_path"),
+    #     application_args=[execution_date],
+    # )
+
+    ingest_circuits_to_bronze >> ingest_circuits_to_silver
