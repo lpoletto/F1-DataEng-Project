@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
 from os import environ as env
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat
 
 def get_spark_session() -> SparkSession:
     """
@@ -20,3 +22,11 @@ def get_spark_session() -> SparkSession:
         .getOrCreate()
     
     return spark
+
+
+def add_ingestion_date(input_df, custom_date_column="ingestion_date"):
+    # yesterday = datetime.now() - timedelta(days=1)
+    # v_date = yesterday.strftime("%Y-%m-%d") # Formato: 2025-06-10
+    v_date = current_timestamp()
+    output_df = input_df.withColumn(custom_date_column, v_date)
+    return output_df
