@@ -61,7 +61,7 @@ with DAG(
     create_dwh_db = PythonOperator(
         task_id="create_dwh_db",
         python_callable=create_a_database,
-        op_kwargs={"db_name": Variable.get("F1_DW")}
+        op_kwargs={"db_name": Variable.get("F1_DWH")}
     )
 
     create_gold_schema = PythonOperator(
