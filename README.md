@@ -39,7 +39,7 @@ POSTGRES_PASSWORD=airflow # YOUR_POSTGRES_PASSWORD
 POSTGRES_URL="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"
 DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar,/tmp/drivers/hadoop-aws-3.3.1.jar,/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar
 
-F1_DW=f1_dw
+F1_DWH=f1_dwh
 BRONZE_SCHEMA=f1_bronze
 SILVER_SCHEMA=f1_silver
 GOLD_SCHEMA=f1_gold
