@@ -40,13 +40,13 @@ with DAG(
         application_args=[execution_date],
     )
 
-    # ingest_circuits_to_gold = SparkSubmitOperator(
-    #     task_id="ingest_circuits_to_gold",
-    #     application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_gold.py',
-    #     conn_id="spark_default",
-    #     dag=dag,
-    #     driver_class_path=Variable.get("driver_class_path"),
-    #     application_args=[execution_date],
-    # )
+    ingest_circuits_to_gold = SparkSubmitOperator(
+        task_id="ingest_circuits_to_gold",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_gold.py',
+        conn_id="spark_default",
+        dag=dag,
+        driver_class_path=Variable.get("driver_class_path"),
+        application_args=[execution_date],
+    )
 
-    ingest_circuits_to_bronze >> ingest_circuits_to_silver
+    ingest_circuits_to_bronze >> ingest_circuits_to_silver >> ingest_circuits_to_gold
