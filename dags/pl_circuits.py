@@ -47,6 +47,7 @@ with DAG(
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
     ingest_circuits_to_bronze >> ingest_circuits_to_silver >> ingest_circuits_to_gold

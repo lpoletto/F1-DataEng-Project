@@ -5,6 +5,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.types import DateType, TimestampType
 from commons import *
 import sys
+from helpers import *
 
 SILVER_LAYER_PATH = env["SILVER_LAYER_PATH"]
 GOLD_LAYER_PATH = env["GOLD_LAYER_PATH"]
@@ -46,6 +47,7 @@ def ingest_circuits_to_gold(spark, execution_date):
     dim_circuits_df.write.mode("overwrite").parquet(f"{GOLD_LAYER_PATH}/dim_circuits")
 
     print("\n################## Step 3 - Write data to PostgreSQL ##################\n")
+    print("\n################## Saving data to STG Table ##################\n")
     dim_circuits_df.write \
         .format("jdbc") \
         .option("url", f"jdbc:postgresql://{DB_HOST}:{DB_PORT}/{F1_DB}") \
@@ -56,7 +58,24 @@ def ingest_circuits_to_gold(spark, execution_date):
         .mode("overwrite") \
         .save()
 
-
+    print("\n################## Step 4 - Merge ##################\n")
+    sql_query = f"""
+        CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_circuit (
+        circuit_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        circuit_id INT NOT NULL,
+        circuit_ref TEXT NOT NULL,
+        circuit_name TEXT NOT NULL,
+        circuit_location TEXT NOT NULL,
+        circuit_country TEXT NOT NULL,
+        circuit_latitude NUMERIC(10, 6) NOT NULL,
+        circuit_longitude NUMERIC(10, 6) NOT NULL,
+        circuit_altitude INTEGER,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NULL,
+        CONSTRAINT dim_circuit_uk UNIQUE (circuit_id)
+    );
+    """
+    execute_sql_query(sql_query, F1_DB)
 
 if __name__ == "__main__":
     spark = get_spark_session()
