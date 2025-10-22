@@ -7,7 +7,7 @@ from helpers import *
 if __name__ == "__main__":
     spark = get_spark_session()
     execution_date = sys.argv[1]
-    table_name = "circuits"
+    table_name = "constructors"
 
     sql_query = f"SELECT * FROM f1db.{table_name}"
 
