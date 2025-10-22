@@ -1,7 +1,7 @@
-from os import environ as env
 from datetime import datetime
 import sys
-from commons import get_spark_session
+from os import environ as env
+from helpers import *
 
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
 
@@ -14,7 +14,7 @@ def ingest_circuits_to_bronze(spark, execution_date):
     JDBC_DRIVER = "com.mysql.cj.jdbc.Driver" # "org.postgresql.Driver"
 
     # Conexión a MySQL
-    mysql_url = f"jdbc:mysql://mysql:3306/{env['MYSQL_DATABASE']}"
+    mysql_url = f"jdbc:mysql://mysql:{env['MYSQL_PORT']}/{env['MYSQL_DATABASE']}"
     mysql_properties = {
         "user": env["MYSQL_USER"],
         "password": env["MYSQL_PASSWORD"],

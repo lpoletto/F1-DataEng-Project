@@ -13,35 +13,38 @@ defaul_args = {
 }
 
 with DAG(
-    dag_id="pl_circuits_to_bronze",
+    dag_id="circuits_full_load_etl",
     default_args=defaul_args,
-    description="Carga de datos de circuits desde MySQL a Bronze en MinIO",
+    description="Carga de datos de la tabla circuits",
     schedule_interval="@weekly",
     catchup=False,
+    tags=['circuits', 'full_load', 'bronze', 'silver', 'gold']
 ) as dag:
     
     execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
     # Tasks
-    ingest_circuits_to_bronze = SparkSubmitOperator(
-        task_id="ingest_circuits_to_bronze",
+    load_bronze = SparkSubmitOperator(
+        task_id="load_bronze_circuits",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_bronze.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    ingest_circuits_to_silver = SparkSubmitOperator(
-        task_id="ingest_circuits_to_silver",
+    load_silver = SparkSubmitOperator(
+        task_id="transform_silver_circuits",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_silver.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    ingest_circuits_to_gold = SparkSubmitOperator(
-        task_id="ingest_circuits_to_gold",
+    load_gold = SparkSubmitOperator(
+        task_id="load_gold_dim_circuits",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_gold.py',
         conn_id="spark_default",
         dag=dag,
@@ -50,4 +53,4 @@ with DAG(
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    ingest_circuits_to_bronze >> ingest_circuits_to_silver >> ingest_circuits_to_gold
+    load_bronze >> load_silver >> load_gold
