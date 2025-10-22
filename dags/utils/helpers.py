@@ -7,6 +7,8 @@ import psycopg2
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat
 
+# Ruta base para capa bronze
+BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
 
 
 def create_bucket(bucket_name, region=None):
@@ -147,3 +149,74 @@ def add_ingestion_date(input_df, custom_date_column="ingestion_date"):
     v_date = current_timestamp()
     output_df = input_df.withColumn(custom_date_column, v_date)
     return output_df
+
+
+def ingest_to_bronze(spark,
+    table_name: str,
+    query: str,
+    execution_date: str,
+    jdbc_driver: str = "com.mysql.cj.jdbc.Driver"
+):
+    """
+    Función genérica para extraer datos desde MySQL mediante una query SQL
+    y guardarlos en la capa Bronze.
+
+    Parámetros:
+    ----------
+    spark : SparkSession
+        Sesión activa de Spark.
+    table_name : str
+        Nombre de la tabla o nombre lógico del dataset (se usa en el path de salida).
+    query : str
+        Query SQL a ejecutar en la base de datos origen.
+    execution_date : str
+        Fecha de ejecución (por ejemplo, '2025-10-22') usada en la ruta de salida.
+    jdbc_driver : str
+        Driver JDBC (por defecto MySQL, pero puede cambiarse a PostgreSQL, Redshift, etc.)
+    """
+
+    v_file_date = execution_date
+    print(f"\n################## Starting ingestion of '{table_name}' ##################\n")
+
+    # Configuración conexión JDBC
+    jdbc_url = f"jdbc:mysql://mysql:{env['MYSQL_PORT']}/{env['MYSQL_DATABASE']}"
+    jdbc_properties = {
+        "user": env["MYSQL_USER"],
+        "password": env["MYSQL_PASSWORD"],
+        "driver": jdbc_driver
+    }
+
+    print("\n################## Step 1 - Read data from MySql database ##################\n")
+    try:
+        df = (
+            spark.read.format("jdbc")
+            .option("url", jdbc_url)
+            .option("driver", jdbc_properties["driver"])
+            .option("query", query)
+            .option("user", jdbc_properties["user"])
+            .option("password", jdbc_properties["password"])
+            .load()
+        )
+        print("\n✅ Connection successful.\n")
+
+    except Exception as e:
+        print(f"\n❌ Connection failed: {str(e)}")
+        raise
+
+    # Mostrar preview
+    df.show(10, truncate=False)
+    df.printSchema()
+
+    # Path de salida
+    output_path = f"{BRONZE_LAYER_PATH}/{v_file_date}/{table_name}"
+    print(f"\n################## Step 2 - Writing in Bronze layer ##################\n")
+    print(f"Ruta destino: {output_path}")
+
+    try:
+        df.write.mode("overwrite").csv(output_path, header=True)
+        print(f"\n✅ Saved successfully: {output_path}\n")
+    except Exception as e:
+        print(f"\n❌ Error saving in Bronze: {str(e)}")
+        raise
+
+    # return output_path

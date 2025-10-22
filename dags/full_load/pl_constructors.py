@@ -13,19 +13,19 @@ defaul_args = {
 }
 
 with DAG(
-    dag_id="races_full_load_etl",
+    dag_id="constructors_full_load_etl",
     default_args=defaul_args,
-    description="Carga de datos de la tabla races",
+    description="Carga de datos de la tabla constructors",
     schedule_interval="@weekly",
     catchup=False,
-    tags=['races', 'full_load', 'bronze', 'silver', 'gold']
+    tags=['constructors', 'full_load']
 ) as dag:
     
     execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
     # Tasks
     load_bronze = SparkSubmitOperator(
-        task_id="load_bronze_races",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_races_to_bronze.py',
+        task_id="load_bronze_constructors",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_bronze.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
@@ -34,8 +34,8 @@ with DAG(
     )
 
     load_silver = SparkSubmitOperator(
-        task_id="transform_silver_races",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_races_to_silver.py',
+        task_id="transform_silver_constructors",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_silver.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
@@ -44,8 +44,8 @@ with DAG(
     )
 
     load_gold = SparkSubmitOperator(
-        task_id="load_gold_dim_races",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_races_to_gold.py',
+        task_id="load_gold_dim_constructors",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_gold.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),

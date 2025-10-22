@@ -18,7 +18,7 @@ with DAG(
     description="Carga de datos de la tabla circuits",
     schedule_interval="@weekly",
     catchup=False,
-    tags=['circuits', 'full_load', 'bronze', 'silver', 'gold']
+    tags=['circuits', 'full_load']
 ) as dag:
     
     execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
