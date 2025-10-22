@@ -93,4 +93,4 @@ with DAG(
 
     create_bronze_bucket >> create_silver_bucket >> create_gold_bucket
 
-    create_dwh_db >> create_gold_schema >> create_silver_schema >> create_stg_schema
+    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema]
