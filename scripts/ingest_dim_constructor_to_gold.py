@@ -17,7 +17,7 @@ STG_SCHEMA = env["STG_SCHEMA"]
 F1_GOLD_SCHEMA = env["GOLD_SCHEMA"]
 
 
-def ingest_constructors_to_gold(spark, execution_date):
+def ingest_dim_constructor_to_gold(spark, execution_date):
     v_file_date = execution_date # Parametro
     print("\n################## Step 1 - Read data from constructors table ##################\n")
     constructors_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/{v_file_date}/constructors")
@@ -127,5 +127,5 @@ def ingest_constructors_to_gold(spark, execution_date):
 if __name__ == "__main__":
     spark = get_spark_session()
     execution_date = sys.argv[1]
-    ingest_constructors_to_gold(spark, execution_date)
+    ingest_dim_constructor_to_gold(spark, execution_date)
     spark.sparkContext.stop()

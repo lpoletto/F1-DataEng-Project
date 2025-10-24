@@ -5,15 +5,14 @@ from helpers import *
 
 
 if __name__ == "__main__":
-    spark = get_spark_session() # Configuración de SparkSession con soporte S3
+    spark = get_spark_session()
     execution_date = sys.argv[1]
-    table_name = "races"
-    
+    table_name = "drivers"
+
+    sql_query = f"SELECT * FROM f1db.{table_name}"
+
     print(f"\nFecha de ejecución: {execution_date}")
     print(f"Tabla/Query a procesar: {table_name}")
 
-    sql_query = f"SELECT * FROM f1db.{table_name}"
-   
-    ingest_to_bronze(spark, table_name, sql_query, execution_date)   
-    # Detener la sesión de Spark
+    ingest_to_bronze(spark, table_name, sql_query, execution_date)
     spark.sparkContext.stop()
