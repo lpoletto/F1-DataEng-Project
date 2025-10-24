@@ -45,7 +45,7 @@ with DAG(
 
     load_gold = SparkSubmitOperator(
         task_id="load_gold_dim_circuits",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_circuits_to_gold.py',
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_dim_circuit_to_gold.py',
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
