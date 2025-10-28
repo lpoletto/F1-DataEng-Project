@@ -5,7 +5,7 @@ from minio import Minio
 import psycopg2
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat
+from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat, date_format, to_timestamp
 
 # Ruta base para capa bronze
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
@@ -202,6 +202,16 @@ def ingest_to_bronze(spark,
     except Exception as e:
         print(f"\n❌ Connection failed: {str(e)}")
         raise
+
+    # Si el dataframe contiene la columna "time", la normalizamos a formato HH:mm:ss
+    if "time" in df.columns:
+        df = df.withColumn(
+            "time",
+            date_format(
+                to_timestamp("time", "HH:mm:ss"),
+                "HH:mm:ss"
+            )
+        )
 
     # Mostrar preview
     df.show(10, truncate=False)
