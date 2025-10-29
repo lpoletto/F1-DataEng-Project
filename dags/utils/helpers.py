@@ -5,7 +5,7 @@ from minio import Minio
 import psycopg2
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat, date_format, to_timestamp
+from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat, date_format, to_timestamp, col,  regexp_replace, length, lpad
 
 # Ruta base para capa bronze
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
@@ -205,12 +205,22 @@ def ingest_to_bronze(spark,
 
     # Si el dataframe contiene la columna "time", la normalizamos a formato HH:mm:ss
     if "time" in df.columns:
+        # 1 Aseguramos que las horas tengan dos dígitos (ej. "2:05:05.152" → "02:05:05.152")
         df = df.withColumn(
             "time",
-            date_format(
-                to_timestamp("time", "HH:mm:ss"),
-                "HH:mm:ss"
-            )
+            regexp_replace(col("time"), r"^(\d):", r"0\1:")
+        )
+
+        # 2️ Convertimos el string a timestamp considerando los milisegundos
+        df = df.withColumn(
+            "time",
+            to_timestamp("time", "HH:mm:ss.SSS")
+        )
+
+        # 3️ Lo devolvemos al formato string estándar (opcional)
+        df = df.withColumn(
+            "time",
+            date_format(col("time"), "HH:mm:ss")
         )
 
     # Mostrar preview
