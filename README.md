@@ -137,7 +137,7 @@ docker-compose up -d
 
 14. Ejecutar el DAG: start_up_init.py para configurar el entorno de datos (db,schemas,buckets).
 
-## Comando utilies de Docker
+## Comandos utilies de Docker
 Si experimienta algun fallo o que no se visualice algun dag, reiniciar los servicios:
 ```bash
 docker compose down
