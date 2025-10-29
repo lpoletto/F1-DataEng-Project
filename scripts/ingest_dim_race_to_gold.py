@@ -134,7 +134,8 @@ def ingest_dim_race_to_gold(spark, execution_date):
         )
         WHEN MATCHED AND (
             COALESCE(tgt.race_name, ' ') <> COALESCE(stg.race_name, ' ') OR 
-            COALESCE(tgt.race_round, -1) <> COALESCE(stg.race_round, -1)
+            COALESCE(tgt.race_round, -1) <> COALESCE(stg.race_round, -1) OR
+            COALESCE(tgt.race_timestamp, '1900-01-01 00:00:00.000') <> COALESCE(stg.race_timestamp, '1900-01-01 00:00:00.000')
         ) THEN
         UPDATE set race_year=stg.race_year,
             race_date=stg.race_date,
