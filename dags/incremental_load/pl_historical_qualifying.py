@@ -18,7 +18,7 @@ with DAG(
     dag_id="qualifying_historical_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla qualifying",
-    schedule_interval="@weekly",
+    schedule_interval=None,  # Se ejecuta manualmente
     catchup=False,
     tags=['qualifying', 'historical_load']
 ) as dag:

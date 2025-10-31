@@ -18,7 +18,7 @@ with DAG(
     dag_id="constructor_standings_historical_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla constructor_standings",
-    schedule_interval="@weekly",
+    schedule_interval=None,  # Se ejecuta manualmente
     catchup=False,
     tags=['constructor_standings', 'historical_load']
 ) as dag:

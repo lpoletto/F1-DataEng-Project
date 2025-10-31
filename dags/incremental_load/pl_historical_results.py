@@ -18,7 +18,7 @@ with DAG(
     dag_id="results_historical_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla results",
-    schedule_interval="@weekly",
+    schedule_interval=None,  # Se ejecuta manualmente
     catchup=False,
     tags=['results', 'historical_load']
 ) as dag:
