@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.models import Variable
-from utils.helpers import create_bucket, create_a_database, execute_sql_query
+from utils.helpers import create_dim_date, create_bucket, create_a_database, execute_sql_query
 
 
 SQL_QUERY_CREATE_GOLD_SCHEMA = f"""
@@ -92,6 +92,12 @@ with DAG(
         }
     )
 
+    create_table_dim_date = PythonOperator(
+        task_id="create_dim_date",
+        python_callable=create_dim_date,
+        op_kwargs={"end_date": "2030-01-01"},  # Pasa los argumentos
+    )
+
     create_bronze_bucket >> create_silver_bucket >> create_gold_bucket
 
-    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema]
+    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema, create_table_dim_date]

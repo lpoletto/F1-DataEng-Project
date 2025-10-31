@@ -9,6 +9,16 @@ from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat
 
 # Ruta base para capa bronze
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
+SILVER_LAYER_PATH = env["SILVER_LAYER_PATH"]
+GOLD_LAYER_PATH = env["GOLD_LAYER_PATH"]
+DB_NAME = env["POSTGRES_DB"]
+DB_USER = env["POSTGRES_USER"]
+DB_PASSWORD = env["POSTGRES_PASSWORD"]
+DB_HOST = env["POSTGRES_HOST"]
+DB_PORT = env["POSTGRES_PORT"] 
+F1_DB = env["F1_DWH"]
+STG_SCHEMA = env["STG_SCHEMA"]
+F1_GOLD_SCHEMA = env["GOLD_SCHEMA"]
 
 
 def create_bucket(bucket_name, region=None):
@@ -240,3 +250,101 @@ def ingest_to_bronze(spark,
         raise
 
     # return output_path
+
+
+def create_dim_date(end_date):
+    # Create table if not exists
+    sql_query = f"""
+    CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_date (
+        date_id               INT NOT NULL,
+        date              	  DATE NOT NULL,
+        weekday               VARCHAR(9) NOT NULL,
+        weekday_num           INT NOT NULL,
+        day_month             INT NOT NULL,
+        day_of_year           INT NOT NULL,
+        week_of_year          INT NOT NULL,
+        iso_week         	  CHAR(10) NOT NULL,
+        month_num             INT NOT NULL,
+        month_name            VARCHAR(9) NOT NULL,
+        month_name_short   	  CHAR(3) NOT NULL,
+        quarter      		  INT NOT NULL,
+        year              	  INT NOT NULL,
+        first_day_of_month    DATE NOT NULL,
+        last_day_of_month     DATE NOT NULL,
+        yyyymm                CHAR(7) NOT NULL,
+        weekend_indr          CHAR(10) NOT NULL,
+        CONSTRAINT dim_date_pk PRIMARY KEY (date_id)
+    );
+    """
+    print("\n################## Creating dim_date table if not exists ##################\n")
+    execute_sql_query(sql_query, F1_DB)
+
+    sql_query = f"""
+    CREATE INDEX IF NOT EXISTS d_date_date_actual_idx
+    ON {F1_GOLD_SCHEMA}.dim_date(date);
+    """
+    print("\n################## Creating index on dim_date.date ##################\n")
+    execute_sql_query(sql_query, F1_DB)
+
+    # Insert a default row for unknown date
+    sql_query = f"""
+    SELECT COUNT(*) FROM {F1_GOLD_SCHEMA}.dim_date WHERE date_id = -1;
+    """
+    print("\n################## Inserting default row for unknown date if not exists ##################\n")
+    result_query = fetch_sql_query_result(sql_query, F1_DB)
+
+    if result_query[0][0] == 0:
+        sql_query = f"""
+        INSERT INTO f1_gold.dim_date
+        VALUES(
+            19000101,
+            '1900-01-01',
+            'Monday',
+            1,
+            1,
+            1,
+            1,
+            '1900-W01-1',
+            1,
+            'January',
+            'Jan',
+            1,
+            1900,
+            '1900-01-01',
+            '1900-01-31',
+            '190001',
+            'weekday'
+        );
+        """
+        execute_sql_query(sql_query, F1_DB)
+
+    print(f"\n################## Inserting all dates from 1950-01-01 to {end_date} ##################\n")
+    # Insert all dates from 1950-01-01 to 2026-01-01
+    sql_query = f"""
+        INSERT INTO {F1_GOLD_SCHEMA}.dim_date
+        SELECT 
+            TO_CHAR(datum::DATE, 'yyyymmdd')::INT AS date_id,
+            datum::DATE AS date,
+            TO_CHAR(datum, 'TMDay') AS weekday,
+            EXTRACT(ISODOW FROM datum) AS weekday_num,
+            EXTRACT(DAY FROM datum) AS day_month,
+            EXTRACT(DOY FROM datum) AS day_of_year,
+            EXTRACT(WEEK FROM datum) AS week_of_year,
+            EXTRACT(ISOYEAR FROM datum) || TO_CHAR(datum, '"-W"IW-') || EXTRACT(ISODOW FROM datum) AS iso_week,
+            EXTRACT(MONTH FROM datum) AS month,
+            TO_CHAR(datum, 'TMMonth') AS month_name,
+            TO_CHAR(datum, 'Mon') AS month_name_short,
+            EXTRACT(QUARTER FROM datum) AS quarter,
+            EXTRACT(YEAR FROM datum) AS year,
+            datum::DATE + (1 - EXTRACT(DAY FROM datum))::INT AS first_day_of_month,
+            (DATE_TRUNC('MONTH', datum)::DATE + INTERVAL '1 MONTH - 1 day')::DATE AS last_day_of_month,
+            TO_CHAR(datum, 'yyyy-mm') AS mmyyyy,
+            CASE
+                WHEN EXTRACT(ISODOW FROM datum) IN (6, 7) THEN 'weekend'
+                ELSE 'weekday'
+            END AS weekend_indr
+        FROM (
+            SELECT generate_series('1950-01-01'::DATE, '{end_date}'::DATE, INTERVAL '1 day') AS datum
+        ) DQ;
+        """
+    execute_sql_query(sql_query, F1_DB)
