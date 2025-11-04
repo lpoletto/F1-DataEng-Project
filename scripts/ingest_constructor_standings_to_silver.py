@@ -90,7 +90,7 @@ def ingest_constructor_standings_to_silver(spark, execution_date):
     .partitionBy("race_id") \
     .parquet(output_path)
 
-    print("\n################## Datos guardados en MinIO con éxito. ##################\n")
+    print("\n################## Data successfully saved to MinIO. ##################\n")
     print(f"\n################## {output_path} ##################\n")
 
     # # Testing data
