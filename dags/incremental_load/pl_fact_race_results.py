@@ -1,8 +1,6 @@
-from os import environ as env
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator

@@ -66,7 +66,7 @@ def ingest_qualifying_to_silver(spark, execution_date):
     output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/qualifying"
     qualifying_final_df.write.mode("overwrite").parquet(output_path)
     
-    print("\n################## Datos guardados en MinIO con éxito. ##################\n")
+    print("\n################## Data successfully saved to MinIO. ##################\n")
     print(f"\n################## {output_path} ##################\n")
 
 
