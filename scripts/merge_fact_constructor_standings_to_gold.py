@@ -36,7 +36,7 @@ def merge_fact_constructor_standings_to_gold(spark):
     print("\n################## Step 3 - CREATE TABLE IF NOT EXISTS ##################\n")
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.fact_constructor_standings (
-        constructor_standings_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        constructor_standings_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         constructor_standings_id int4 NOT NULL,
         race_id int4 NOT NULL,
         constructor_id int4 NOT NULL,

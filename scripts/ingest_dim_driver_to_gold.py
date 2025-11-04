@@ -64,7 +64,7 @@ def ingest_dim_driver_to_gold(spark, execution_date):
     print("\n################## Step 4 - Merge ##################\n")
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_driver (
-        driver_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        driver_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         driver_id int not null,
         driver_ref text not null,
         driver_number int null,

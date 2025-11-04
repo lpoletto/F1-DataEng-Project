@@ -256,7 +256,7 @@ def create_dim_date(end_date):
     # Create table if not exists
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_date (
-        date_id               INT NOT NULL,
+        date_id               BIGINT NOT NULL,
         date              	  DATE NOT NULL,
         weekday               VARCHAR(9) NOT NULL,
         weekday_num           INT NOT NULL,
@@ -323,7 +323,7 @@ def create_dim_date(end_date):
     sql_query = f"""
         INSERT INTO {F1_GOLD_SCHEMA}.dim_date
         SELECT 
-            TO_CHAR(datum::DATE, 'yyyymmdd')::INT AS date_id,
+            TO_CHAR(datum::DATE, 'yyyymmdd')::BIGINT AS date_id,
             datum::DATE AS date,
             TO_CHAR(datum, 'TMDay') AS weekday,
             EXTRACT(ISODOW FROM datum) AS weekday_num,

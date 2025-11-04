@@ -59,7 +59,7 @@ def ingest_dim_circuit_to_gold(spark, execution_date):
     print("\n################## Step 4 - Merge ##################\n")
     sql_query = f"""
         CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_circuit (
-        circuit_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        circuit_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         circuit_id INT NOT NULL,
         circuit_ref TEXT NOT NULL,
         circuit_name TEXT NOT NULL,

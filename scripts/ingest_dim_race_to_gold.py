@@ -62,7 +62,7 @@ def ingest_dim_race_to_gold(spark, execution_date):
     print("\n################## Step 4 - Merge ##################\n")
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_race (
-        race_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        race_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         race_id int NOT NULL,
         race_year int NOT NULL,
         race_date date NOT NULL,

@@ -55,7 +55,7 @@ def ingest_dim_constructor_to_gold(spark, execution_date):
     print("\n################## Step 4 - Merge ##################\n")
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_constructor (
-        constructor_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        constructor_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         constructor_id int not null,
         constructor_ref text not null,
         constructor_name text NOT NULL,

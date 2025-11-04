@@ -69,7 +69,7 @@ def ingest_dim_status_to_gold(spark, execution_date):
     # Create table if not exists
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.dim_status (
-        status_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        status_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         status_id int not null,
         status_name text NOT NULL,
         created_at timestamp NOT NULL,

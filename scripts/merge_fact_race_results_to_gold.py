@@ -38,7 +38,7 @@ def merge_fact_race_results_to_gold(spark):
     # Create table if not exists
     sql_query = f"""
     CREATE TABLE IF NOT EXISTS {F1_GOLD_SCHEMA}.fact_race_results (
-        result_sk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        result_sk BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         result_id int4 NOT NULL,
         race_id int4 NOT NULL,
         driver_id int4 NOT NULL,
