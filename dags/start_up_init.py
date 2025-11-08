@@ -27,12 +27,11 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29),
     "retries": 1,
-    "retry_delay": timedelta(seconds=5),
-    "catchup": False
+    "retry_delay": timedelta(seconds=5)
 }
 
 with DAG(
-    dag_id="start_up_init_DAG",
+    dag_id="start_up_init",
     default_args=default_args,
     description="Si se enfoca en configurar el entorno de datos (esquemas, tablas, buckets)",
     schedule_interval=None, # Se ejecuta manualmente
