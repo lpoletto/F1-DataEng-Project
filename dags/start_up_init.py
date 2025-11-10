@@ -27,7 +27,7 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29),
     "retries": 1,
-    "retry_delay": timedelta(seconds=5)
+    "retry_delay": timedelta(minutes=5)
 }
 
 with DAG(
@@ -36,7 +36,7 @@ with DAG(
     description="Si se enfoca en configurar el entorno de datos (esquemas, tablas, buckets)",
     schedule_interval=None, # Se ejecuta manualmente
     catchup=False, # No ejecuta tareas pasadas
-    tags=["setup"]
+    tags=["setup", "init"]
 ) as dag:
     
     # Tasks

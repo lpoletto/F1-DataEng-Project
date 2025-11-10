@@ -10,7 +10,7 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29),
     "retries": 1,
-    "retry_delay": timedelta(seconds=5),
+    "retry_delay": timedelta(minutes=5),
     "catchup": False
 }
 
@@ -18,7 +18,7 @@ with DAG(
     dag_id="constructor_standings_incremental_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla constructor_standings",
-    schedule_interval="@weekly",
+    schedule_interval="0 0 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['constructor_standings', 'incremental_load']
 ) as dag:

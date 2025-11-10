@@ -28,13 +28,13 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 10, 1),
     "retries": 1,
-    "retry_delay": timedelta(seconds=5)
+    "retry_delay": timedelta(minutes=5)
 }
 
 with DAG(
     dag_id="get_data_f1_api_v2",
     default_args=default_args,
-    schedule="@daily",
+    schedule="0 0 * * MON",  # Ejecuta semanalmente los lunes a medianoche
     catchup=False,
     tags=["f1_api"]
 ) as dag:
@@ -54,7 +54,7 @@ with DAG(
         python_callable=fetch_race_results,
         op_kwargs={
             "season": 2025, 
-            "round_number": 20,
+            "round_number": 21,
             "http_conn_id": "f1_api" 
         }, # Pasa los argumentos
     )

@@ -10,7 +10,7 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29),
     "retries": 1,
-    "retry_delay": timedelta(seconds=5),
+    "retry_delay": timedelta(minutes=5),
     "catchup": False
 }
 
