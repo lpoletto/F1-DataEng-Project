@@ -18,7 +18,7 @@ with DAG(
     dag_id="driver_standings_incremental_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla driver_standings",
-    schedule_interval="0 0 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['driver_standings', 'incremental_load']
 ) as dag:

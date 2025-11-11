@@ -18,7 +18,7 @@ with DAG(
     dag_id="lap_times_incremental_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla lap_times",
-    schedule_interval="0 0 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['lap_times', 'incremental_load']
 ) as dag:

@@ -17,7 +17,7 @@ with DAG(
     dag_id="drivers_full_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla drivers",
-    schedule_interval="0 0 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['drivers', 'full_load']
 ) as dag:

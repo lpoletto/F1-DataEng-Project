@@ -20,7 +20,7 @@ with DAG(
     dag_id="fact_race_results_incremental_load_etl",
     default_args=default_args,
     description="Carga de datos de la tabla fact_race_results",
-    schedule_interval="0 0 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['fact_race_results', 'incremental_load']
 ) as dag:
