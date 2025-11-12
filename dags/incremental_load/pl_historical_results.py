@@ -15,7 +15,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="results_historical_load_etl",
+    dag_id="pl_historical_results",
     default_args=default_args,
     description="Carga de datos de la tabla results",
     schedule_interval=None,  # Se ejecuta manualmente

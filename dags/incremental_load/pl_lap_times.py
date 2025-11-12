@@ -15,7 +15,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="lap_times_incremental_load_etl",
+    dag_id="pl_lap_times",
     default_args=default_args,
     description="Carga de datos de la tabla lap_times",
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"

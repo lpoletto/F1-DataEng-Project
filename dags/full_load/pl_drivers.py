@@ -14,7 +14,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="drivers_full_load_etl",
+    dag_id="pl_drivers",
     default_args=default_args,
     description="Carga de datos de la tabla drivers",
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"

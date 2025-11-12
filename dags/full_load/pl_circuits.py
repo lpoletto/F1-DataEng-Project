@@ -14,7 +14,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="circuits_full_load_etl",
+    dag_id="pl_circuits",
     default_args=default_args,
     description="Carga de datos de la tabla circuits",
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"

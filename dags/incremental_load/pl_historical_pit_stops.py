@@ -15,7 +15,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="pit_stops_historical_load_etl",
+    dag_id="pl_historical_pit_stops",
     default_args=default_args,
     description="Carga de datos de la tabla pit_stops",
     schedule_interval=None,  # Se ejecuta manualmente

@@ -15,7 +15,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="qualifying_incremental_load_etl",
+    dag_id="pl_qualifying",
     default_args=default_args,
     description="Carga de datos de la tabla qualifying",
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
