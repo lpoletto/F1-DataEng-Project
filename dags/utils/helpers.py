@@ -295,7 +295,7 @@ def create_dim_date(end_date):
 
     if result_query[0][0] == 0:
         sql_query = f"""
-        INSERT INTO f1_gold.dim_date
+        INSERT INTO {F1_GOLD_SCHEMA}.dim_date
         VALUES(
             19000101,
             '1900-01-01',
