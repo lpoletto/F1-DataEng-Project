@@ -12,7 +12,7 @@ if __name__ == "__main__":
     sql_query = f"SELECT * FROM f1db.{table_name}"
 
     print(f"\nFecha de ejecución: {execution_date}")
-    print(f"Tabla/Query a procesar: {table_name}")
+    print(f"\nTabla/Query a procesar: {table_name}")
 
     ingest_to_bronze(spark, table_name, sql_query, execution_date)
     spark.sparkContext.stop()
