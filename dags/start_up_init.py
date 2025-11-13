@@ -1,5 +1,6 @@
 from os import environ as env
 from datetime import datetime, timedelta
+from pendulum import timezone
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
@@ -23,9 +24,11 @@ CREATE SCHEMA IF NOT EXISTS {env["STG_SCHEMA"]};
 # BUCKET_NAME = Variable.get("bucket_name")
 REGION = None  # Cambia esto según sea necesario
 
+local_tz = timezone("America/Argentina/Buenos_Aires")
+
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5)
 }
@@ -36,7 +39,12 @@ with DAG(
     description="Si se enfoca en configurar el entorno de datos (esquemas, tablas, buckets)",
     schedule_interval=None, # Se ejecuta manualmente
     catchup=False, # No ejecuta tareas pasadas
-    tags=["setup", "init"]
+    tags=["setup", "init"],
+    dagrun_timeout=timedelta(minutes=20), # Tiempo máximo de ejecución del DAG, sino falla
+    max_active_runs=1,  # Solo permite una ejecución activa del DAG a la vez
+    params = {
+        "date_from": "YYYY-MM-DD" # Parámetro para la fecha de fin en la creación de dim_date 
+    }
 ) as dag:
     
     # Tasks
@@ -91,12 +99,6 @@ with DAG(
         }
     )
 
-    create_table_dim_date = PythonOperator(
-        task_id="create_dim_date",
-        python_callable=create_dim_date,
-        op_kwargs={"end_date": "2030-01-01"},  # Pasa los argumentos
-    )
-
     create_bronze_bucket >> create_silver_bucket >> create_gold_bucket
 
-    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema, create_table_dim_date]
+    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema]
