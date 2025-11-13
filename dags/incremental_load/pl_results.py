@@ -1,14 +1,21 @@
 from os import environ as env
 from datetime import datetime, timedelta
-
+from pendulum import timezone
 from airflow import DAG
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
+from airflow.datasets import Dataset
+
+EXECUTION_DATE = Variable.get("execution_date") # Parámetro para la fecha de ejecución
+SILVER_BUCKET = Variable.get("silver_bucket_path")
+DATASET_RESULTS = Dataset(f"{SILVER_BUCKET}/{EXECUTION_DATE}/results")
+
+local_tz = timezone("America/Argentina/Buenos_Aires")
 
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "catchup": False
@@ -23,7 +30,6 @@ with DAG(
     tags=['results', 'incremental_load']
 ) as dag:
     
-    execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
     # Tasks
     load_bronze = SparkSubmitOperator(
         task_id="load_bronze_results",
@@ -31,7 +37,7 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[execution_date],
+        application_args=[EXECUTION_DATE],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -41,8 +47,9 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[execution_date],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        application_args=[EXECUTION_DATE, DATASET_RESULTS.uri],
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        outlets=[DATASET_RESULTS]
     )
 
     load_bronze >> load_silver

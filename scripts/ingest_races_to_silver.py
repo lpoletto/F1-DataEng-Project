@@ -8,7 +8,7 @@ from pyspark.sql.types import StructType, StructField, IntegerType, StringType, 
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
 SILVER_LAYER_PATH = env["SILVER_LAYER_PATH"]
 
-def ingest_races_to_silver(spark, execution_date):
+def ingest_races_to_silver(spark, execution_date, output_path):
     v_file_date = execution_date # Parametro
     v_data_source = f"{BRONZE_LAYER_PATH}/{v_file_date}/races"
     input_path = v_data_source
@@ -97,7 +97,6 @@ def ingest_races_to_silver(spark, execution_date):
     races_final_df.printSchema()
 
     print("\n################## Step 6 - Write data to datalake as parquet ##################\n")
-    output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/races"
     # Activar overwrite dinámico en la sesión de Spark
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     
@@ -110,7 +109,8 @@ def ingest_races_to_silver(spark, execution_date):
 
 if __name__ == "__main__":
     spark = get_spark_session()
-    execution_date = sys.argv[1] # datetime.now().strftime("%Y-%m-%d")
-    ingest_races_to_silver(spark, execution_date)
+    execution_date = sys.argv[1]
+    output_path = sys.argv[2]
+    ingest_races_to_silver(spark, execution_date, output_path)
     # Detener la sesión de Spark
     spark.sparkContext.stop()
