@@ -43,7 +43,8 @@ with DAG(
     dagrun_timeout=timedelta(minutes=20), # Tiempo máximo de ejecución del DAG, sino falla
     max_active_runs=1,  # Solo permite una ejecución activa del DAG a la vez
     params = {
-        "date_from": "YYYY-MM-DD" # Parámetro para la fecha de fin en la creación de dim_date 
+        "date_from": "2030-12-31", # Parámetro para la fecha de fin en la creación de dim_date 
+        "description": "YYYY-MM-DD formato de la fecha"
     }
 ) as dag:
     
@@ -99,6 +100,12 @@ with DAG(
         }
     )
 
+    create_table_dim_date = PythonOperator(
+        task_id="load_dim_date",
+        python_callable=create_dim_date,
+        op_kwargs={"end_date": "{{params.date_from}}"},  # Pasa los argumentos. Usa el parámetro desde la UI
+    )
+
     create_bronze_bucket >> create_silver_bucket >> create_gold_bucket
 
-    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema]
+    create_dwh_db >> [create_gold_schema,create_silver_schema,create_stg_schema, create_table_dim_date]
