@@ -7,21 +7,23 @@ from airflow.models import Variable
 from airflow.datasets import Dataset
 
 
-EXECUTION_DATE = Variable.get("execution_date")
-
 local_tz = timezone("America/Argentina/Buenos_Aires")
+
+params = {"execution_date": "YYYY-MM-DD"}
+
 default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
-    "catchup": False
+    "catchup": False,
 }
 
 with DAG(
     dag_id="pl_circuits",
     default_args=default_args,
     description="Carga de datos de la tabla circuits",
+    params= params,
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['circuits', 'full_load']
@@ -35,7 +37,16 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -45,7 +56,16 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -55,7 +75,16 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
