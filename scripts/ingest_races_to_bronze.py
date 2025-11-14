@@ -6,7 +6,7 @@ from helpers import *
 
 if __name__ == "__main__":
     spark = get_spark_session() # Configuración de SparkSession con soporte S3
-    execution_date = sys.argv[1]
+    execution_date = sys.argv[1].strip()
     table_name = "races"
     
     print(f"\nFecha de ejecución: {execution_date}")

@@ -133,7 +133,7 @@ def ingest_results_to_silver(spark, execution_date, output_path):
 
 if __name__ == "__main__":
     spark = get_spark_session()
-    execution_date = sys.argv[1]
+    execution_date = sys.argv[1].strip()
     output_path = sys.argv[2]
     ingest_results_to_silver(spark, execution_date, output_path)
     # Detener la sesión de Spark

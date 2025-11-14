@@ -128,6 +128,6 @@ def ingest_dim_status_to_gold(spark, execution_date):
 
 if __name__ == "__main__":
     spark = get_spark_session()
-    execution_date = sys.argv[1]
+    execution_date = sys.argv[1].strip()
     ingest_dim_status_to_gold(spark, execution_date)
     spark.sparkContext.stop()

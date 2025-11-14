@@ -101,6 +101,6 @@ def ingest_fact_race_results_to_gold(spark, execution_date):
 
 if __name__ == "__main__":
     spark = get_spark_session()
-    execution_date = sys.argv[1]
+    execution_date = sys.argv[1].strip()
     ingest_fact_race_results_to_gold(spark, execution_date)
     spark.sparkContext.stop()
