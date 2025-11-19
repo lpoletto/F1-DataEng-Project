@@ -16,7 +16,7 @@ if __name__ == "__main__":
     SELECT lt.raceId, driverId, lap, `position`, lt.`time`, milliseconds
     FROM f1db.{table_name} lt
     INNER JOIN f1db.races r ON lt.raceId = r.raceId
-    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}';
+    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}'
     """
    
     ingest_to_bronze(spark, "lap_times", sql_query, execution_date)   

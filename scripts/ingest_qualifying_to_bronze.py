@@ -16,7 +16,7 @@ if __name__ == "__main__":
     SELECT qualifyId, q.raceId, driverId, constructorId, `number`, `position`, q1, q2, q3
     FROM f1db.{table_name} q
     INNER JOIN f1db.races r on q.raceId = r.raceId
-    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}';
+    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}'
     """
    
     ingest_to_bronze(spark, table_name, sql_query, execution_date)   

@@ -33,9 +33,9 @@ if __name__ == "__main__":
         statusId
     FROM f1db.{table_name} res
     INNER JOIN f1db.races r on res.raceId = r.raceId
-    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}';
+    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}'
     """
    
-    ingest_to_bronze(spark, table_name, sql_query, execution_date)   
+    ingest_to_bronze(spark, table_name, sql_query, execution_date)
     # Detener la sesión de Spark
     spark.sparkContext.stop()
