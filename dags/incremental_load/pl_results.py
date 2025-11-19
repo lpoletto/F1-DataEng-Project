@@ -7,11 +7,12 @@ from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOpe
 from airflow.models import Variable
 from airflow.datasets import Dataset
 
-EXECUTION_DATE = Variable.get("execution_date") # Parámetro para la fecha de ejecución
+
 SILVER_BUCKET = Variable.get("silver_bucket_path")
-DATASET_RESULTS = Dataset(f"{SILVER_BUCKET}/{EXECUTION_DATE}/results")
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
+
+params = {"execution_date": "YYYY-MM-DD"}
 
 default_args = {
     "owner": "Lautaro",
@@ -25,10 +26,15 @@ with DAG(
     dag_id="pl_results",
     default_args=default_args,
     description="Carga de datos de la tabla results",
+    params= params,
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
     tags=['results', 'incremental_load']
 ) as dag:
+    
+    DATASET_RESULTS = Dataset(
+        f"{SILVER_BUCKET}/{{{{ dag_run.conf.get('execution_date', macros.ds_add(ds, -1)) }}}}/results"
+    )
     
     # Tasks
     load_bronze = SparkSubmitOperator(
@@ -37,7 +43,16 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -47,7 +62,17 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE, DATASET_RESULTS.uri],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+            ,DATASET_RESULTS.uri
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
         outlets=[DATASET_RESULTS]
     )

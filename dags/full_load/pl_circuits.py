@@ -9,7 +9,7 @@ from airflow.datasets import Dataset
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
-params = {"execution_date": "YYYY-MM-DD"}
+params = {"execution_date": "YYYY-MM-DD"} # Parámetro para la fecha de ejecución
 
 default_args = {
     "owner": "Lautaro",
@@ -29,7 +29,6 @@ with DAG(
     tags=['circuits', 'full_load']
 ) as dag:
     
-    # execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
     # Tasks
     load_bronze = SparkSubmitOperator(
         task_id="load_bronze_circuits",
