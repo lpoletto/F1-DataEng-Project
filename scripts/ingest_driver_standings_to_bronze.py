@@ -16,7 +16,7 @@ if __name__ == "__main__":
     SELECT ds.*
     FROM f1db.{table_name} ds
     INNER JOIN f1db.races r on ds.raceId = r.raceId
-    WHERE r.`date` = '{execution_date}'
+    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}';
     """
    
     ingest_to_bronze(spark, "driver_standings", sql_query, execution_date)   

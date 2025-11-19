@@ -32,8 +32,8 @@ if __name__ == "__main__":
         fastestLapSpeed, 
         statusId
     FROM f1db.{table_name} res
-    INNER join f1db.races r on res.raceId = r.raceId
-    WHERE r.`date` = '{execution_date}'
+    INNER JOIN f1db.races r on res.raceId = r.raceId
+    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}';
     """
    
     ingest_to_bronze(spark, table_name, sql_query, execution_date)   
