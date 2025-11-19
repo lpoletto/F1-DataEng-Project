@@ -25,6 +25,6 @@ if __name__ == "__main__":
     WHERE r.`date` <= '{execution_date}'
     """
    
-    ingest_to_bronze(spark, table_name, sql_query, execution_date)   
+    ingest_to_bronze(spark, "pit_stops", sql_query, execution_date)   
     # Detener la sesión de Spark
     spark.sparkContext.stop()
