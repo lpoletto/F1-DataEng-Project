@@ -16,7 +16,7 @@ if __name__ == "__main__":
     SELECT constructorStandingsId, cs.raceId, constructorId, points, `position`, positionText, wins
     FROM f1db.{table_name} cs
     INNER JOIN f1db.races r on cs.raceId = r.raceId
-    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}';
+    WHERE r.`date` BETWEEN DATE_SUB('{execution_date}', INTERVAL 30 DAY) and '{execution_date}'
     """
    
     ingest_to_bronze(spark, "constructor_standings", sql_query, execution_date)   
