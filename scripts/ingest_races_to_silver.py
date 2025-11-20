@@ -99,18 +99,18 @@ def ingest_races_to_silver(spark, execution_date, output_path):
     print("\n################## Step 6 - Write data to datalake as parquet ##################\n")
     # Activar overwrite dinámico en la sesión de Spark
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
-    
-    races_final_df.write.mode("overwrite").partitionBy("race_year").parquet(f"{output_path}")
+    final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/{output_path}"
+    races_final_df.write.mode("overwrite").partitionBy("race_year").parquet(f"{final_output_path}")
 
     
     print("\n################## Data successfully saved to MinIO. ##################\n")
-    print(f"\n################## {output_path} ##################\n")
+    print(f"\n################## {final_output_path} ##################\n")
 
 
 if __name__ == "__main__":
     spark = get_spark_session()
     execution_date = sys.argv[1].strip()
-    output_path = sys.argv[2]
+    output_path = sys.argv[2].strip()
     ingest_races_to_silver(spark, execution_date, output_path)
     # Detener la sesión de Spark
     spark.sparkContext.stop()

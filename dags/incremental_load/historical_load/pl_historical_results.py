@@ -32,7 +32,7 @@ with DAG(
 ) as dag:
     
     DATASET_RESULTS = Dataset(
-        f"{SILVER_BUCKET}/{{{{ dag_run.conf.get('execution_date', macros.ds_add(ds, -1)) }}}}/results"
+        f"{SILVER_BUCKET}/{{{{ dag_run.conf.get('execution_date', macros.ds_add(data_interval_end | ds, -1)) }}}}/results"
     )
     
     # Tasks

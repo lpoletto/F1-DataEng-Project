@@ -8,7 +8,7 @@ from airflow.models import Variable
 from airflow.datasets import Dataset
 
 
-SILVER_BUCKET = Variable.get("silver_bucket_path")
+DATASET_RESULTS = Dataset("results")
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
@@ -32,9 +32,6 @@ with DAG(
     tags=['results', 'incremental_load']
 ) as dag:
     
-    DATASET_RESULTS = Dataset(
-        f"{SILVER_BUCKET}/{{{{ dag_run.conf.get('execution_date', macros.ds_add(ds, -1)) }}}}/results"
-    )
     
     # Tasks
     load_bronze = SparkSubmitOperator(

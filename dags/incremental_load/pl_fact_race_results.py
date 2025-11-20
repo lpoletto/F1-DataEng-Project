@@ -8,13 +8,12 @@ from airflow.models import Variable
 from airflow.datasets import Dataset
 from utils.helpers import *
 
-
-EXECUTION_DATE = Variable.get("execution_date")
-SILVER_BUCKET = Variable.get("silver_bucket_path")
-DATASET_RESULTS = Dataset(f"{SILVER_BUCKET}/{EXECUTION_DATE}/results")
-DATASET_RACES = Dataset(f"{SILVER_BUCKET}/{EXECUTION_DATE}/races")
+DATASET_RACES = Dataset("races")
+DATASET_RESULTS = Dataset("results")
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
+
+params = {"execution_date": "YYYY-MM-DD"}
 
 default_args = {
     "owner": "Lautaro",
@@ -27,6 +26,7 @@ default_args = {
 with DAG(
     dag_id="pl_fact_race_results",
     default_args=default_args,
+    params=params,
     description="Carga de datos de la tabla fact_race_results",
     # schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     schedule=[DATASET_RESULTS, DATASET_RACES],
@@ -36,7 +36,7 @@ with DAG(
     tags=['fact_race_results', 'incremental_load']
 ) as dag:
     
-    # execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
+
     # Tasks
     load_gold = SparkSubmitOperator(
         task_id="load_gold_fact_race_results",
@@ -44,7 +44,16 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -54,7 +63,16 @@ with DAG(
         conn_id="spark_default",
         dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[EXECUTION_DATE],
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
