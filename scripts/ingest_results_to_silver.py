@@ -12,7 +12,7 @@ BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
 SILVER_LAYER_PATH = env["SILVER_LAYER_PATH"]
 
 def ingest_results_to_silver(spark, execution_date, output_path):
-    v_file_date = execution_date # Parametro
+    v_file_date = execution_date.strip()
     v_data_source = f"{BRONZE_LAYER_PATH}/{v_file_date}/results"
     input_path = v_data_source
 
@@ -123,10 +123,20 @@ def ingest_results_to_silver(spark, execution_date, output_path):
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic") 
     
     final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/{output_path}"
-    results_deduplicated_df.write \
-    .mode("overwrite") \
-    .partitionBy("race_id") \
-    .parquet(final_output_path)
+    print(f"\n################## Writing data to: {final_output_path} ##################\n")
+    # Verificamos si el DF NO está vacío
+    if results_df.head(1):
+        # Si tiene datos, escribimos particionado por race_id
+        results_deduplicated_df.write \
+        .mode("overwrite") \
+        .partitionBy("race_id") \
+        .parquet(final_output_path)
+    else:
+        # Al quitar el partitionBy, Spark escribirá un archivo parquet
+        # que solo contiene los metadatos del esquema (headers) pero 0 filas
+        results_deduplicated_df.write \
+        .mode("overwrite") \
+        .parquet(final_output_path)
 
     print("\n################## Data successfully saved to MinIO. ##################\n")
     print(f"\n################## {final_output_path} ##################\n")
