@@ -23,7 +23,7 @@ with DAG(
     tags=['lap_times', 'incremental_load']
 ) as dag:
     
-    execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
+    execution_date = f'{Variable.get("end_date")}' # Parámetro para la fecha de ejecución
     # Tasks
     load_bronze = SparkSubmitOperator(
         task_id="load_bronze_lap_times",

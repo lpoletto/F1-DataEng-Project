@@ -23,7 +23,7 @@ with DAG(
     tags=['fact_driver_standings', 'incremental_load']
 ) as dag:
     
-    execution_date = f'{Variable.get("execution_date")}' # Parámetro para la fecha de ejecución
+    execution_date = f'{Variable.get("end_date")}' # Parámetro para la fecha de ejecución
     # Tasks
     load_gold = SparkSubmitOperator(
         task_id="load_gold_fact_driver_standings",

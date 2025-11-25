@@ -9,7 +9,7 @@ from airflow.models import Variable
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
-params = {"execution_date": f"{Variable.get('execution_date')}"}
+params = {"execution_date": f"{Variable.get('end_date')}"}
 
 default_args = {
     "owner": "Lautaro",
