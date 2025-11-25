@@ -20,7 +20,8 @@ F1_GOLD_SCHEMA = env["GOLD_SCHEMA"]
 def ingest_fact_race_results_to_gold(spark, execution_date):
     v_file_date = execution_date # Parametro
     
-    print("\n################## Step 1 - Read data from races table ##################\n")
+    print("\n################## Step 1 - Read data from results table ##################\n")
+    print(f"\n################## {SILVER_LAYER_PATH}/{v_file_date}/results ##################\n")
     # Filtramos por fecha v_file_date
     results_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/{v_file_date}/results") \
     .filter(f"file_date = '{v_file_date}'") \
@@ -32,6 +33,9 @@ def ingest_fact_race_results_to_gold(spark, execution_date):
     
     print("\n################## results_df ##################\n")
     results_df.show(5, truncate=False)
+
+    print("\n################## Step 1 - Read data from races table ##################\n")
+    print(f"\n################## {SILVER_LAYER_PATH}/{v_file_date}/races ##################\n")
 
     races_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/{v_file_date}/races") \
     .filter(f"file_date = '{v_file_date}'") \

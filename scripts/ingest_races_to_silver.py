@@ -106,7 +106,6 @@ def ingest_races_to_silver(spark, execution_date, output_path):
     print("\n################## Data successfully saved to MinIO. ##################\n")
     print(f"\n################## {final_output_path} ##################\n")
 
-
 if __name__ == "__main__":
     spark = get_spark_session()
     execution_date = sys.argv[1].strip()
