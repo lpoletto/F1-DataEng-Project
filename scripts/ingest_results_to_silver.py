@@ -125,7 +125,7 @@ def ingest_results_to_silver(spark, execution_date, output_path):
     final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/{output_path}"
     print(f"\n################## Writing data to: {final_output_path} ##################\n")
     # Verificamos si el DF NO está vacío
-    if results_df.head(1):
+    if results_deduplicated_df.head(1):
         # Si tiene datos, escribimos particionado por race_id
         results_deduplicated_df.write \
         .mode("overwrite") \
