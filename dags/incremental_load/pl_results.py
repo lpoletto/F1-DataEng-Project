@@ -5,10 +5,6 @@ from airflow import DAG
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
-from airflow.datasets import Dataset
-
-
-DATASET_RESULTS = Dataset("results")
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
@@ -68,10 +64,8 @@ with DAG(
             )
             }}
             """
-            ,DATASET_RESULTS.uri
         ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
-        outlets=[DATASET_RESULTS]
     )
 
     load_bronze >> load_silver

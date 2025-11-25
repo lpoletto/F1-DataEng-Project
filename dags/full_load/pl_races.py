@@ -4,10 +4,7 @@ from pendulum import timezone
 from airflow import DAG
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
-from airflow.datasets import Dataset
 
-
-DATASET_RACES = Dataset("races")
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
@@ -66,10 +63,8 @@ with DAG(
             )
             }}
             """
-            , DATASET_RACES.uri
         ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
-        outlets=[DATASET_RACES]
     )
 
     load_gold = SparkSubmitOperator(

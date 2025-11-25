@@ -11,7 +11,7 @@ from pyspark.sql.types import StructType, StructField, IntegerType, StringType, 
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
 SILVER_LAYER_PATH = env["SILVER_LAYER_PATH"]
 
-def ingest_results_to_silver(spark, execution_date, output_path):
+def ingest_results_to_silver(spark, execution_date):
     v_file_date = execution_date.strip()
     v_data_source = f"{BRONZE_LAYER_PATH}/{v_file_date}/results"
     input_path = v_data_source
@@ -122,7 +122,7 @@ def ingest_results_to_silver(spark, execution_date, output_path):
     # Borra y reemplaza únicamente las carpetas de partición
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic") 
     
-    final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/{output_path}"
+    final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/results"
     print(f"\n################## Writing data to: {final_output_path} ##################\n")
     # Verificamos si el DF NO está vacío
     if results_deduplicated_df.head(1):
@@ -145,7 +145,6 @@ def ingest_results_to_silver(spark, execution_date, output_path):
 if __name__ == "__main__":
     spark = get_spark_session()
     execution_date = sys.argv[1].strip()
-    output_path = sys.argv[2].strip()
-    ingest_results_to_silver(spark, execution_date, output_path)
+    ingest_results_to_silver(spark, execution_date)
     # Detener la sesión de Spark
     spark.sparkContext.stop()

@@ -8,7 +8,7 @@ from pyspark.sql.types import StructType, StructField, IntegerType, StringType, 
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
 SILVER_LAYER_PATH = env["SILVER_LAYER_PATH"]
 
-def ingest_races_to_silver(spark, execution_date, output_path):
+def ingest_races_to_silver(spark, execution_date):
     v_file_date = execution_date # Parametro
     v_data_source = f"{BRONZE_LAYER_PATH}/{v_file_date}/races"
     input_path = v_data_source
@@ -97,19 +97,26 @@ def ingest_races_to_silver(spark, execution_date, output_path):
     races_final_df.printSchema()
 
     print("\n################## Step 6 - Write data to datalake as parquet ##################\n")
-    # Activar overwrite dinámico en la sesión de Spark
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
-    final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/{output_path}"
-    races_final_df.write.mode("overwrite").partitionBy("race_year").parquet(f"{final_output_path}")
-
+    final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/races"
+    # Verificamos si el DF NO está vacío
+    if races_final_df.head(1):
+        # Activar overwrite dinámico en la sesión de Spark
+        spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+        races_final_df.write.mode("overwrite").partitionBy("race_year").parquet(f"{final_output_path}")
+    else:
+        # Al quitar el partitionBy, Spark escribirá un archivo parquet
+        # que solo contiene los metadatos del esquema (headers) pero 0 filas
+        races_final_df.write \
+        .mode("overwrite") \
+        .parquet(final_output_path)
     
     print("\n################## Data successfully saved to MinIO. ##################\n")
     print(f"\n################## {final_output_path} ##################\n")
 
+
 if __name__ == "__main__":
     spark = get_spark_session()
     execution_date = sys.argv[1].strip()
-    output_path = sys.argv[2].strip()
-    ingest_races_to_silver(spark, execution_date, output_path)
+    ingest_races_to_silver(spark, execution_date)
     # Detener la sesión de Spark
     spark.sparkContext.stop()
