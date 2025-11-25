@@ -1,7 +1,6 @@
 FROM apache/airflow:2.6.2
 
 RUN python -m pip install --upgrade pip
-RUN python -m pip install apache-airflow-providers-apache-spark
 
 USER root
 
