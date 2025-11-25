@@ -33,7 +33,7 @@ with DAG(
         task_id="load_bronze_lap_times",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_history_lap_times_to_bronze.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -52,7 +52,7 @@ with DAG(
         task_id="transform_silver_lap_times",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_lap_times_to_silver.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """

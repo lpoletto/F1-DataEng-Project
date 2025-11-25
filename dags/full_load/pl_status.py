@@ -28,7 +28,7 @@ with DAG(
         task_id="load_bronze_status",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_status_to_bronze.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
@@ -38,7 +38,7 @@ with DAG(
         task_id="load_gold_dim_status",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_dim_status_to_gold.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'

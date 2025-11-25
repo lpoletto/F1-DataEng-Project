@@ -28,7 +28,7 @@ with DAG(
         task_id="load_bronze_constructors",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_bronze.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
@@ -38,7 +38,7 @@ with DAG(
         task_id="transform_silver_constructors",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_silver.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
@@ -48,7 +48,7 @@ with DAG(
         task_id="load_gold_dim_constructors",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_dim_constructor_to_gold.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[execution_date],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'

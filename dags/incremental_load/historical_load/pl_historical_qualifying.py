@@ -33,7 +33,7 @@ with DAG(
         task_id="load_bronze_qualifying",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_history_qualifying_to_bronze.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -52,7 +52,7 @@ with DAG(
         task_id="transform_silver_qualifying",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_qualifying_to_silver.py',
         conn_id="spark_default",
-        dag=dag,
+        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """

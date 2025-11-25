@@ -2,7 +2,7 @@ from os import environ as env
 from datetime import datetime, timedelta
 from pendulum import timezone
 from airflow import DAG
-from airflow.sensors.external_task import ExternalTaskSensor
+from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
 
@@ -12,7 +12,7 @@ params = {"execution_date": f"{Variable.get('end_date')}"}
 
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "catchup": False
@@ -21,7 +21,7 @@ default_args = {
 with DAG(
     dag_id="pl_historical_constructor_standings",
     default_args=default_args,
-    params= params,
+    params=params,
     description="Carga de datos de la tabla constructor_standings",
     schedule_interval=None,  # Se ejecuta manualmente
     catchup=False,
@@ -33,7 +33,6 @@ with DAG(
         task_id="load_bronze_constructor_standings",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_history_constructor_standings_to_bronze.py',
         conn_id="spark_default",
-        dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -46,13 +45,23 @@ with DAG(
             """
         ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+    )
+    
+    wait_for_results_file = S3KeySensor(
+        task_id="wait_for_results_file",
+        bucket_name=Variable.get("silver_bucket_name"),
+        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/results/*/*.parquet",
+        aws_conn_id="aws_default",
+        wildcard_match=True,
+        poke_interval=60 * 5, # Chequea cada 5 minutos
+        timeout=60 * 60 * 2, # Se rinde después de 2 horas
+        mode="reschedule", # Libera recursos mientras espera
     )
 
     load_silver = SparkSubmitOperator(
         task_id="transform_silver_constructor_standings",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_constructor_standings_to_silver.py',
         conn_id="spark_default",
-        dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -67,4 +76,4 @@ with DAG(
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    load_bronze >> load_silver
+    load_bronze >> wait_for_results_file >> load_silver

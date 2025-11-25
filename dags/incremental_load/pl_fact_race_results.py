@@ -26,7 +26,7 @@ with DAG(
     description="Carga de datos de la tabla fact_race_results",
     # schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
-    dagrun_timeout=timedelta(minutes=20),
+    dagrun_timeout=timedelta(hours=2),
     max_active_runs=1,
     tags=['fact_race_results', 'incremental_load']
 ) as dag:
@@ -36,7 +36,7 @@ with DAG(
     wait_for_results_file = S3KeySensor(
         task_id="wait_for_results_file",
         bucket_name=Variable.get("silver_bucket_name"),
-        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/results/*.parquet",
+        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/results/*/*.parquet",
         aws_conn_id="aws_default",
         wildcard_match=True,
         poke_interval=60 * 5, # Chequea cada 5 minutos
@@ -59,7 +59,6 @@ with DAG(
         task_id="load_gold_fact_race_results",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_fact_race_results_to_gold.py',
         conn_id="spark_default",
-        dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -78,7 +77,6 @@ with DAG(
         task_id="merge_stg_to_fact_race_results",
         application=f'{Variable.get("spark_scripts_dir")}/merge_fact_race_results_to_gold.py',
         conn_id="spark_default",
-        dag=dag,
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
