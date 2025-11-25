@@ -117,15 +117,22 @@ docker-compose up -d
     * Port: `7077`
     * Extra: `{"queue": "default"}`
 
-11. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
+11. En la pestaña `Admin -> Connections` crear una nueva conexión con los siguientes datos para AWS S3:
+    * Conn Id: `aws_default`
+    * Conn Type: `Amazon Web Services`
+    * AWS Access Key ID: `minio`
+    * AWS Secret Access Key: `constraseña de MinIO`
+    * Extra: `{"region_name": "us-east-1","endpoint_url": "http://minio:9000","use_ssl": false}`
+
+12. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
     * Key: `driver_class_path`
     * Value: `/tmp/drivers/postgresql-42.5.2.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/hadoop-aws-3.3.1.jar:/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar`
 
-12. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
+13. En la pestaña `Admin -> Variables` crear una nueva variable con los siguientes datos:
     * Key: `spark_scripts_dir`
     * Value: `/opt/airflow/scripts`
 
-13. En la pestaña `Admin -> Variables` crear las variables con los siguientes datos:
+14. En la pestaña `Admin -> Variables` crear las variables con los siguientes datos:
     * Key: `raw_data_dir`
     * Value: `/opt/airflow/data/raw`
     * Key: `staging_data_dir`
@@ -135,7 +142,7 @@ docker-compose up -d
 
     **Nota:** Añadir cualquier otra variable que consideren necesaria para sus scripts o DAGs, dependiendo de los requerimientos específicos del proyecto.
 
-14. Ejecutar el DAG: start_up_init.py para configurar el entorno de datos (db,schemas,buckets).
+15. Ejecutar el DAG: start_up_init.py para configurar el entorno de datos (db,schemas,buckets).
 
 ## Comandos utilies de Docker
 Si experimienta algun fallo o que no se visualice algun dag, reiniciar los servicios:
