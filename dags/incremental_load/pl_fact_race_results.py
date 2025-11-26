@@ -36,7 +36,7 @@ with DAG(
     wait_for_results_file = S3KeySensor(
         task_id="wait_for_results_file",
         bucket_name=Variable.get("silver_bucket_name"),
-        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/results/*/*.parquet",
+        bucket_key="{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}/results/*/*.parquet",
         aws_conn_id="aws_default",
         wildcard_match=True,
         poke_interval=60 * 5, # Chequea cada 5 minutos
@@ -47,7 +47,7 @@ with DAG(
     wait_for_races_file = S3KeySensor(
         task_id="wait_for_races_file",
         bucket_name=Variable.get("silver_bucket_name"),
-        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/races/*/*.parquet",
+        bucket_key="{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}/races/*/*.parquet",
         aws_conn_id="aws_default",
         wildcard_match=True,
         poke_interval=60 * 5, # Chequea cada 5 minutos
@@ -60,16 +60,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/ingest_fact_race_results_to_gold.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[
-            """
-            {{
-            dag_run.conf.get(
-                'execution_date',
-                macros.ds_add(data_interval_end | ds, -1)
-            )
-            }}
-            """
-        ],
+        application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -78,16 +69,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/merge_fact_race_results_to_gold.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[
-            """
-            {{
-            dag_run.conf.get(
-                'execution_date',
-                macros.ds_add(data_interval_end | ds, -1)
-            )
-            }}
-            """
-        ],
+        application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 

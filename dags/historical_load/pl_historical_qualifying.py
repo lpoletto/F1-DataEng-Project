@@ -34,16 +34,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/ingest_history_qualifying_to_bronze.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[
-            """
-            {{
-            dag_run.conf.get(
-                'execution_date',
-                macros.ds_add(data_interval_end | ds, -1)
-            )
-            }}
-            """
-        ],
+        application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -52,16 +43,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/ingest_qualifying_to_silver.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[
-            """
-            {{
-            dag_run.conf.get(
-                'execution_date',
-                macros.ds_add(data_interval_end | ds, -1)
-            )
-            }}
-            """
-        ],
+        application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 

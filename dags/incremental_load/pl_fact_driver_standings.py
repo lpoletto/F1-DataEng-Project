@@ -19,6 +19,9 @@ default_args = {
     "catchup": False
 }
 
+# Lógica: Si el parametro NO es el placeholder, úsalo. Si ES el placeholder, calcula ayer.
+date_logic = date_logic = "{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"
+
 with DAG(
     dag_id="pl_fact_driver_standings",
     default_args=default_args,
@@ -34,7 +37,7 @@ with DAG(
     wait_for_driver_standings_file = S3KeySensor(
         task_id="wait_for_driver_standings_file",
         bucket_name=Variable.get("silver_bucket_name"),
-        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/driver_standings/*/*.parquet",
+        bucket_key=f"{date_logic}/driver_standings/*/*.parquet",
         aws_conn_id="aws_default",
         wildcard_match=True,
         poke_interval=60 * 5, # Chequea cada 5 minutos
@@ -45,7 +48,7 @@ with DAG(
     wait_for_races_file = S3KeySensor(
         task_id="wait_for_races_file",
         bucket_name=Variable.get("silver_bucket_name"),
-        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/races/*/*.parquet",
+        bucket_key=f"{date_logic}/races/*/*.parquet",
         aws_conn_id="aws_default",
         wildcard_match=True,
         poke_interval=60 * 5, # Chequea cada 5 minutos
@@ -58,16 +61,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/ingest_fact_driver_standings_to_gold.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[
-            """
-            {{
-            dag_run.conf.get(
-                'execution_date',
-                macros.ds_add(data_interval_end | ds, -1)
-            )
-            }}
-            """
-        ],
+        application_args=[date_logic],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
@@ -76,16 +70,7 @@ with DAG(
         application=f'{Variable.get("spark_scripts_dir")}/merge_fact_driver_standings_to_gold.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
-        application_args=[
-            """
-            {{
-            dag_run.conf.get(
-                'execution_date',
-                macros.ds_add(data_interval_end | ds, -1)
-            )
-            }}
-            """
-        ],
+        application_args=[date_logic],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
