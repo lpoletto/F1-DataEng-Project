@@ -2,10 +2,8 @@ from os import environ as env
 from datetime import datetime, timedelta
 from pendulum import timezone
 from airflow import DAG
-from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
-
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
@@ -13,26 +11,26 @@ params = {"execution_date": f"{Variable.get('end_date')}"}
 
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "catchup": False
 }
 
 with DAG(
-    dag_id="pl_historical_driver_standings",
+    dag_id="pl_historical_constructors",
     default_args=default_args,
     params=params,
-    description="Carga de datos de la tabla driver_standings",
-    schedule_interval=None, # Cambio a ejecucion manual
+    description="Carga de datos de la tabla constructors",
+    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
-    tags=['driver_standings', 'historical_load']
+    tags=['constructors', 'historical_load']
 ) as dag:
     
     # Tasks
     load_bronze = SparkSubmitOperator(
-        task_id="load_bronze_driver_standings",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_history_driver_standings_to_bronze.py',
+        task_id="load_bronze_constructors",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_bronze.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
@@ -46,22 +44,11 @@ with DAG(
             """
         ],
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
-    )
-    
-    wait_for_results_file = S3KeySensor(
-        task_id="wait_for_results_file",
-        bucket_name=Variable.get("silver_bucket_name"),
-        bucket_key="{{ dag_run.conf.get('execution_date',macros.ds_add(data_interval_end | ds, -1)) }}/results/*/*.parquet",
-        aws_conn_id="aws_default",
-        wildcard_match=True,
-        poke_interval=60 * 5, # Chequea cada 5 minutos
-        timeout=60 * 60 * 2, # Se rinde después de 2 horas
-        mode="reschedule", # Libera recursos mientras espera
     )
 
     load_silver = SparkSubmitOperator(
-        task_id="transform_silver_driver_standings",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_driver_standings_to_silver.py',
+        task_id="transform_silver_constructors",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_constructors_to_silver.py',
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
@@ -77,4 +64,22 @@ with DAG(
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    load_bronze >> wait_for_results_file >> load_silver
+    load_gold = SparkSubmitOperator(
+        task_id="load_gold_dim_constructors",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_dim_constructor_to_gold.py',
+        conn_id="spark_default",
+        driver_class_path=Variable.get("driver_class_path"),
+        application_args=[
+            """
+            {{
+            dag_run.conf.get(
+                'execution_date',
+                macros.ds_add(data_interval_end | ds, -1)
+            )
+            }}
+            """
+        ],
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+    )
+
+    load_bronze >> load_silver >> load_gold

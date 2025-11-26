@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from pendulum import timezone
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.models import Variable
 from utils.helpers import create_dim_date, create_bucket, create_a_database, execute_sql_query
 

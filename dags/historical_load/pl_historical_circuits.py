@@ -9,7 +9,7 @@ from airflow.datasets import Dataset
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
-params = {"execution_date": "YYYY-MM-DD"} # Parámetro para la fecha de ejecución
+params = {"execution_date": f"{Variable.get('end_date')}"} # Parámetro para la fecha de ejecución
 
 default_args = {
     "owner": "Lautaro",
@@ -20,13 +20,13 @@ default_args = {
 }
 
 with DAG(
-    dag_id="pl_circuits",
+    dag_id="pl_historical_circuits",
     default_args=default_args,
     description="Carga de datos de la tabla circuits",
     params= params,
     schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
-    tags=['circuits', 'full_load']
+    tags=['circuits', 'historical_load']
 ) as dag:
     
     # Tasks

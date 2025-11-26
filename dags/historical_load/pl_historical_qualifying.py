@@ -12,7 +12,7 @@ params = {"execution_date": f"{Variable.get('end_date')}"}
 
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "catchup": False
@@ -21,7 +21,7 @@ default_args = {
 with DAG(
     dag_id="pl_historical_qualifying",
     default_args=default_args,
-    params= params,
+    params=params,
     description="Carga de datos de la tabla qualifying",
     schedule_interval=None,  # Se ejecuta manualmente
     catchup=False,
@@ -33,7 +33,6 @@ with DAG(
         task_id="load_bronze_qualifying",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_history_qualifying_to_bronze.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -52,7 +51,6 @@ with DAG(
         task_id="transform_silver_qualifying",
         application=f'{Variable.get("spark_scripts_dir")}/ingest_qualifying_to_silver.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """

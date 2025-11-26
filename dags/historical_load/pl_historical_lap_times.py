@@ -6,35 +6,33 @@ from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
 
-
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
 params = {"execution_date": f"{Variable.get('end_date')}"}
 
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "catchup": False
 }
 
 with DAG(
-    dag_id="pl_historical_pit_stops",
+    dag_id="pl_historical_lap_times",
     default_args=default_args,
-    params= params,
-    description="Carga de datos de la tabla pit_stops",
+    params=params,
+    description="Carga de datos de la tabla lap_times",
     schedule_interval=None,  # Se ejecuta manualmente
     catchup=False,
-    tags=['pit_stops', 'historical_load']
+    tags=['lap_times', 'historical_load']
 ) as dag:
     
     # Tasks
     load_bronze = SparkSubmitOperator(
-        task_id="load_bronze_pit_stops",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_history_pit_stops_to_bronze.py',
+        task_id="load_bronze_lap_times",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_history_lap_times_to_bronze.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -50,10 +48,9 @@ with DAG(
     )
 
     load_silver = SparkSubmitOperator(
-        task_id="transform_silver_pit_stops",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_pit_stops_to_silver.py',
+        task_id="transform_silver_lap_times",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_lap_times_to_silver.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """

@@ -2,7 +2,6 @@ from os import environ as env
 from datetime import datetime, timedelta
 from pendulum import timezone
 from airflow import DAG
-from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
 
@@ -12,28 +11,27 @@ params = {"execution_date": f"{Variable.get('end_date')}"}
 
 default_args = {
     "owner": "Lautaro",
-    "start_date": datetime(2025, 9, 29),
+    "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "catchup": False
 }
 
 with DAG(
-    dag_id="pl_historical_results",
+    dag_id="pl_historical_status",
     default_args=default_args,
-    params= params,
-    description="Carga de datos de la tabla results",
-    schedule_interval=None,  # Se ejecuta manualmente
+    params=params,
+    description="Carga de datos de la tabla status",
+    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
     catchup=False,
-    tags=['results', 'historical_load']
+    tags=['status', 'historical_load']
 ) as dag:
     
     # Tasks
     load_bronze = SparkSubmitOperator(
-        task_id="load_bronze_results",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_history_results_to_bronze.py',
+        task_id="load_bronze_status",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_status_to_bronze.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -48,11 +46,10 @@ with DAG(
         py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    load_silver = SparkSubmitOperator(
-        task_id="transform_silver_results",
-        application=f'{Variable.get("spark_scripts_dir")}/ingest_results_to_silver.py',
+    load_gold = SparkSubmitOperator(
+        task_id="load_gold_dim_status",
+        application=f'{Variable.get("spark_scripts_dir")}/ingest_dim_status_to_gold.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[
             """
@@ -64,7 +61,7 @@ with DAG(
             }}
             """
         ],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
     )
 
-    load_bronze >> load_silver
+    load_bronze >> load_gold
