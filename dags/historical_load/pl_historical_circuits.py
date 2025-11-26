@@ -23,8 +23,8 @@ with DAG(
     dag_id="pl_historical_circuits",
     default_args=default_args,
     description="Carga de datos de la tabla circuits",
-    params= params,
-    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    params=params,
+    schedule_interval=None,
     catchup=False,
     tags=['circuits', 'historical_load']
 ) as dag:

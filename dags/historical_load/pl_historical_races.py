@@ -23,7 +23,7 @@ with DAG(
     default_args=default_args,
     description="Carga de datos de la tabla races",
     params= params,
-    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval=None,
     catchup=False,
     tags=['races', 'historical_load']
 ) as dag:

@@ -22,7 +22,7 @@ with DAG(
     default_args=default_args,
     params=params,
     description="Carga de datos de la tabla status",
-    schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval=None,
     catchup=False,
     tags=['status', 'historical_load']
 ) as dag:
