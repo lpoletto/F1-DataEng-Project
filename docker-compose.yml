@@ -92,7 +92,7 @@ services:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
       retries: 5
-    restart: always
+    restart: always # Base de datos crítica, siempre disponible
 
   airflow-webserver:
     <<: *airflow-common
@@ -106,12 +106,12 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-    restart: always
+    restart: on-failure  # Solo reinicia si falla
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
-    restart: always
+    restart: no  # Inicia manualmente cuando lo necesites
 
   airflow-init:
     <<: *airflow-common
@@ -139,7 +139,6 @@ services:
     env_file:
       - .env
     volumes:
-      # - ./spark_working_dir:/home/spark/working_dir
       - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
       - ./spark_drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar
       - ./spark_drivers/hadoop-aws-3.3.1.jar:/tmp/drivers/hadoop-aws-3.3.1.jar
@@ -162,7 +161,6 @@ services:
     env_file:
       - .env
     volumes:
-      # - ./spark_working_dir:/home/spark/working_dir
       - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
       - ./spark_drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar
       - ./spark_drivers/hadoop-aws-3.3.1.jar:/tmp/drivers/hadoop-aws-3.3.1.jar
@@ -192,6 +190,7 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
+    restart: always # Base de datos source, siempre disponible
   
   # -----------------------------------------------------------
   # MinIO
@@ -203,8 +202,6 @@ services:
     ports:
       - '9000:9000'
       - '9001:9001'
-    # volumes:
-    #   - ./docker_shared_folder/working_dir/data:/data
     volumes:
       - minio_data:/data
     env_file:
