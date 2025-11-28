@@ -62,7 +62,13 @@ with DAG(
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[date_logic],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        total_executor_cores='1',
+        executor_cores='1',
+        executor_memory='2g',
+        num_executors='1',
+        driver_memory='2g',
+        verbose=False
     )
 
     merge_stg_to_gold = SparkSubmitOperator(
@@ -71,7 +77,13 @@ with DAG(
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=[date_logic],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        total_executor_cores='1',
+        executor_cores='1',
+        executor_memory='2g',
+        num_executors='1',
+        driver_memory='2g',
+        verbose=False
     )
 
     [wait_for_driver_standings_file, wait_for_races_file] >> load_gold >> merge_stg_to_gold

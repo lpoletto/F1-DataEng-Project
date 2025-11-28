@@ -36,7 +36,13 @@ with DAG(
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        total_executor_cores='1',
+        executor_cores='1',
+        executor_memory='2g',
+        num_executors='1',
+        driver_memory='2g',
+        verbose=False
     )
     
     wait_for_results_file = S3KeySensor(
@@ -56,7 +62,13 @@ with DAG(
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        total_executor_cores='1',
+        executor_cores='1',
+        executor_memory='2g',
+        num_executors='1',
+        driver_memory='2g',
+        verbose=False
     )
 
     load_bronze >> wait_for_results_file >> load_silver

@@ -59,17 +59,28 @@ with DAG(
         conn_id="spark_default",
         driver_class_path=Variable.get("driver_class_path"),
         application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        total_executor_cores='1',
+        executor_cores='1',
+        executor_memory='2g',
+        num_executors='1',
+        driver_memory='2g',
+        verbose=False
     )
 
     merge_stg_to_gold = SparkSubmitOperator(
         task_id="merge_stg_to_fact_constructor_standings",
         application=f'{Variable.get("spark_scripts_dir")}/merge_fact_constructor_standings_to_gold.py',
         conn_id="spark_default",
-        
         driver_class_path=Variable.get("driver_class_path"),
         application_args=["{{ params.execution_date if params.execution_date != 'YYYY-MM-DD' else macros.ds_add(data_interval_end | ds, -1) }}"],
-        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py'
+        py_files= f'{Variable.get("dags_dir")}/utils/helpers.py',
+        total_executor_cores='1',
+        executor_cores='1',
+        executor_memory='2g',
+        num_executors='1',
+        driver_memory='2g',
+        verbose=False
     )
 
     [wait_for_constructor_standings_file, wait_for_races_file] >> load_gold >> merge_stg_to_gold
