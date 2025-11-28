@@ -6,7 +6,6 @@ from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow.models import Variable
 from utils.helpers import *
 
-
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
 params = {"execution_date": "YYYY-MM-DD"}
@@ -15,8 +14,9 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-    "catchup": False
+    "retry_delay": timedelta(minutes=1),
+    "catchup": False,
+    "on_failure_callback": notify_custom_email
 }
 
 with DAG(

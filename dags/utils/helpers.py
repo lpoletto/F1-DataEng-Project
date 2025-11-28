@@ -3,9 +3,9 @@ from os import environ as env
 import logging
 from minio import Minio
 import psycopg2
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp, lit, regexp_extract, concat, date_format, to_timestamp, col,  regexp_replace, length, lpad
+from airflow.utils.email import send_email
 
 # Ruta base para capa bronze
 BRONZE_LAYER_PATH = env["BRONZE_LAYER_PATH"]
@@ -350,3 +350,41 @@ def create_dim_date(end_date):
         ) DQ;
         """
     execute_sql_query(sql_query, F1_DB)
+
+
+def notify_custom_email(context):
+    """
+    Envia un email personalizado cuando falla el DAG o el task.
+    El email automático de Airflow igualmente se envía.
+    """
+    dag_id = context["dag"].dag_id
+    task_id = context["task_instance"].task_id
+    execution_date = context["ts"]
+    log_url = context["task_instance"].log_url
+    owner = getattr(context["dag"], "owner", "humano")
+
+    subject = f"[ALERTA] Falló el task {task_id} en el DAG {dag_id}"
+
+    body = f"""
+    <html>
+      <body>
+        <p>Hola <b>{owner}</b>,</p>
+        <p>Tu task falló.</p>
+        <ul>
+          <li><b>DAG:</b> {dag_id}</li>
+          <li><b>Task:</b> {task_id}</li>
+          <li><b>Execution date:</b> {execution_date}</li>
+        </ul>
+        <p>Podés revisar los logs aquí:<br>
+        <a href="{log_url}">{log_url}</a></p>
+        <p>Saludos,<br>
+        Airflow Bot 🤖</p>
+      </body>
+    </html>
+    """
+
+    send_email(
+        to=["lautaropoletto@gmail.com"],
+        subject=subject,
+        html_content=body
+    )

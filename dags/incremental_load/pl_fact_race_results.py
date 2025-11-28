@@ -15,8 +15,9 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-    "catchup": False
+    "retry_delay": timedelta(minutes=1),
+    "catchup": False,
+    "on_failure_callback": notify_custom_email
 }
 
 with DAG(

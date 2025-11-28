@@ -4,8 +4,7 @@ from pendulum import timezone
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import Variable
-from utils.helpers import create_dim_date, create_bucket, create_a_database, execute_sql_query
-
+from utils.helpers import create_dim_date, create_bucket, create_a_database, execute_sql_query, notify_custom_email
 
 SQL_QUERY_CREATE_GOLD_SCHEMA = f"""
 CREATE SCHEMA IF NOT EXISTS {env["GOLD_SCHEMA"]};
@@ -29,7 +28,8 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
-    "retry_delay": timedelta(minutes=5)
+    "retry_delay": timedelta(minutes=1),
+    "on_failure_callback": notify_custom_email
 }
 
 with DAG(

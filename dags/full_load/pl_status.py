@@ -4,6 +4,7 @@ from pendulum import timezone
 from airflow import DAG
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.models import Variable
+from utils.helpers import notify_custom_email
 
 local_tz = timezone("America/Argentina/Buenos_Aires")
 
@@ -13,8 +14,9 @@ default_args = {
     "owner": "Lautaro",
     "start_date": datetime(2025, 9, 29, tzinfo=local_tz),
     "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-    "catchup": False
+    "retry_delay": timedelta(minutes=1),
+    "catchup": False,
+    "on_failure_callback": notify_custom_email
 }
 
 with DAG(
@@ -27,7 +29,7 @@ with DAG(
     tags=['status', 'full_load']
 ) as dag:
     
-    # Tasks
+        # Tasks
         load_bronze = SparkSubmitOperator(
             task_id="load_bronze_status",
             application=f'{Variable.get("spark_scripts_dir")}/ingest_status_to_bronze.py',
@@ -58,4 +60,4 @@ with DAG(
             verbose=False
         )
 
-    load_bronze >> load_gold
+        load_bronze >> load_gold
