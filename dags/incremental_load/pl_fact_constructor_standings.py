@@ -24,7 +24,7 @@ with DAG(
     default_args=default_args,
     params=params,
     description="Carga de datos de la tabla fact_constructor_standings",
-    # schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval=None,
     dagrun_timeout=timedelta(hours=2),
     catchup=False,
     tags=['fact_constructor_standings', 'incremental_load']

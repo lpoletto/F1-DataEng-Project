@@ -25,7 +25,7 @@ with DAG(
     default_args=default_args,
     params=params,
     description="Carga de datos de la tabla fact_race_results",
-    # schedule_interval="0 3 * * MON",  # Ejecuta semanalmente los lunes a medianoche"
+    schedule_interval=None,
     catchup=False,
     dagrun_timeout=timedelta(hours=2),
     max_active_runs=1,
