@@ -49,12 +49,13 @@ def merge_fact_race_results_to_gold(spark):
         "position" int4 NULL,
         position_text text NULL,
         position_order int4 NULL,
+        race_rank int4 NULL,
         points float4 NULL,
         laps int4 NULL,
         "time" text NULL,
         milliseconds int4 NULL,
         fastest_lap int4 NULL,
-        "rank" int4 NULL,
+        "fastest_lap_rank" int4 NULL,
         fastest_lap_time text NULL,
         fastest_lap_speed text NULL,
         created_at timestamp NOT NULL,
@@ -90,19 +91,20 @@ def merge_fact_race_results_to_gold(spark):
             position,
             position_text,
             position_order,
+            race_rank,
             points,
             laps,
             time,
             milliseconds,
             fastest_lap,
-            rank,
+            fastest_lap_rank,
             fastest_lap_time,
             fastest_lap_speed,
             created_at,
             updated_at
         )
         VALUES(
-            -1, -1, -1, -1, -1, 19000101, -1, -1, 'unknown', -1, -1, -1, 'unknown', -1, -1, -1, 'unknown', 'unknown', CURRENT_TIMESTAMP, NULL
+            -1, -1, -1, -1, -1, 19000101, -1, -1, 'unknown', -1, -1, -1, -1, 'unknown', -1, -1, -1, 'unknown', 'unknown', CURRENT_TIMESTAMP, NULL
         );
         """
         execute_sql_query(sql_query, F1_DB)
@@ -125,12 +127,13 @@ def merge_fact_race_results_to_gold(spark):
         position,
         position_text,
         position_order,
+        race_rank,
         points,
         laps,
         time,
         milliseconds,
         fastest_lap,
-        rank,
+        fastest_lap_rank,
         fastest_lap_time,
         fastest_lap_speed,
         created_at
@@ -147,18 +150,21 @@ def merge_fact_race_results_to_gold(spark):
         stg.position,
         stg.position_text,
         stg.position_order,
+        stg.race_rank,
         stg.points,
         stg.laps,
         stg.time,
         stg.milliseconds,
         stg.fastest_lap,
-        stg.rank,
+        stg.fastest_lap_rank,
         stg.fastest_lap_time,
         stg.fastest_lap_speed,
         stg.created_at
     )
     WHEN MATCHED AND (
         COALESCE(tgt.position, -1) <> COALESCE(stg.position, -1)
+        OR
+        COALESCE(tgt.race_rank, -1) <> COALESCE(stg.race_rank, -1)
         OR 
         COALESCE(tgt.position_text, ' ') <> COALESCE(stg.position_text, ' ') 
     ) THEN
@@ -166,12 +172,13 @@ def merge_fact_race_results_to_gold(spark):
         position=stg.position,
         position_text=stg.position_text,
         position_order=stg.position_order,
+        race_rank=stg.race_rank,
         points=stg.points,
         laps=stg.laps,
         time=stg.time,
         milliseconds=stg.milliseconds,
         fastest_lap=stg.fastest_lap,
-        rank=stg.rank,
+        fastest_lap_rank=stg.fastest_lap_rank,
         fastest_lap_time=stg.fastest_lap_time,
         fastest_lap_speed=stg.fastest_lap_speed,
         updated_at=CURRENT_TIMESTAMP
