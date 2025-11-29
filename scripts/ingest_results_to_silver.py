@@ -57,12 +57,22 @@ def ingest_results_to_silver(spark, execution_date):
     .withColumnRenamed("fastestLapTime", "fastest_lap_time") \
     .withColumnRenamed("fastestLapSpeed", "fastest_lap_speed") \
     .withColumnRenamed("fastestLapSpeed", "fastest_lap_speed") \
+    .withColumnRenamed("rank", "fastest_lap_rank") \
     .withColumnRenamed("statusId", "status_id") \
     .withColumn("data_source", lit(v_data_source)) \
     .withColumn("file_date", lit(v_file_date).cast(DateType()))
 
     print("\n################## Step 3 - Add race_timestamp and ingestion date to the dataframe (audit field) ##################\n")
     results_final_df = add_ingestion_date(results_with_columns_df)
+
+    
+    print("\n################## Step 4 - Add race_rank (posición real dentro de la carrera) ##################\n")
+
+    race_rank_window = Window.partitionBy("race_id").orderBy("position_order")
+
+    results_final_df = results_final_df.withColumn(
+        "race_rank", row_number().over(race_rank_window)
+    )
 
     print("\n################## Step 4 - Order columns in a DataFrame ##################\n")
     
@@ -75,12 +85,13 @@ def ingest_results_to_silver(spark, execution_date):
         "position",
         "position_text",
         "position_order",
+        "race_rank",
         "points",
         "laps",
         "time",
         "milliseconds",
         "fastest_lap",
-        "rank",
+        "fastest_lap_rank",
         "fastest_lap_time",
         "fastest_lap_speed",
         "data_source",
@@ -91,7 +102,7 @@ def ingest_results_to_silver(spark, execution_date):
     # Ordena las columnas usando select y *column_order:
     results_final_df = results_final_df.select(*column_order)
 
-    print("\n################## Step 5 - Drop duplicate rows ##################\n")
+    print("\n################## Step 6 - Drop duplicate rows ##################\n")
     
     results_final_df.createOrReplaceTempView("results_final")
     sql_query = """SELECT race_id, driver_id, count(1) 
@@ -103,27 +114,29 @@ def ingest_results_to_silver(spark, execution_date):
     spark.sql(sql_query).show(5)
 
     # Definimos la ventana particionada por race_id y driver_id, ordenada por result_id descendente
+    # window_spec = Window.partitionBy("race_id", "driver_id").orderBy(desc("result_id"))
     window_spec = Window.partitionBy("race_id", "driver_id").orderBy(desc("result_id"))
 
     # Agregamos una columna con el número de fila
-    results_ranked_df = results_final_df.withColumn("row_num", row_number().over(window_spec))
+    results_ranked_df = results_final_df.withColumn(
+        "row_num", row_number().over(window_spec)
+    )
 
     # Filtramos solo la fila con row_num = 1, es decir, la de mayor result_id por grupo
     results_deduplicated_df = results_ranked_df.filter("row_num = 1").drop("row_num")
 
-    ### Test ###
-    # results_deduplicated_df.filter(
-    #     (col("driver_id") == 579) & col("race_id").between(799, 807)
-    # ).orderBy(col("race_id").asc()).show()
+    print("\n################## Test Output ##################\n")
+    results_deduplicated_df.filter(
+        (col("driver_id") == 182) & col("race_id").between(576, 589)
+    ).orderBy(col("race_id").asc()).show()
 
-    print("\n################## Step 6 - Write data to datalake as parquet ##################\n")
+    print("\n################## Step 7 - Write data to datalake as parquet ##################\n")
     
     # Activar overwrite dinámico en la sesión de Spark
     # Borra y reemplaza únicamente las carpetas de partición
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic") 
     
     final_output_path = f"{SILVER_LAYER_PATH}/{v_file_date}/results"
-    print(f"\n################## Writing data to: {final_output_path} ##################\n")
     # Verificamos si el DF NO está vacío
     if results_deduplicated_df.head(1):
         # Si tiene datos, escribimos particionado por race_id
