@@ -202,44 +202,21 @@ Ejemplos de queries para analizar los datos en las vistas del Data Warehouse:
 ### Campeonatos de pilotos por temporada
 
 ```sql
-CREATE OR REPLACE VIEW f1_gold.vw_driver_standings
-AS 
-WITH ranked_standings AS (
-    SELECT ds.driver_id,
-        d.driver_name,
-        d.driver_nationality,
-        ds.points,
-        ds.wins,
-        ds.rank,
-        ds.race_id,
-        dd.year AS race_year,
-        ds.date_id,
-        row_number() OVER (PARTITION BY ds.driver_id, dd.year ORDER BY ds.date_id DESC) AS rn
-    FROM f1_gold.fact_driver_standings ds
-    LEFT JOIN f1_gold.dim_date dd 
-		ON ds.date_id = dd.date_id
-    LEFT JOIN f1_gold.dim_driver d 
-		ON ds.driver_id = d.driver_id
-)
-SELECT distinct 
-    rs.race_id,
-    rs.date_id,
-    rs.race_year,
-    rs.rank,
-    rs.driver_name,
-    rs.driver_nationality,
-    rs.driver_id,
-    dc.constructor_id,
-    dc.constructor_name,
-    rs.points,
-    rs.wins
-FROM ranked_standings rs
-LEFT JOIN f1_gold.fact_race_results frr 
-	ON rs.driver_id = frr.driver_id AND rs.race_id = frr.race_id
-INNER JOIN f1_gold.dim_constructor dc 
-	ON frr.constructor_id = dc.constructor_id
-WHERE rs.rn = 1
-ORDER BY rs.date_id DESC, rs.points DESC;
+create or replace view f1_gold.vw_drivers_standings
+as
+select 
+    d."year" as season,
+    r.race_round,
+    r.race_name,
+    ds."rank" as pos,
+    dr.driver_name as driver,
+    ds.points -- Puntos acumulados hasta esa fecha  
+from f1_gold.fact_driver_standings ds
+left join f1_gold.dim_race r on ds.race_id = r.race_id
+left join f1_gold.dim_date d on r.race_date = d."date" 
+left join f1_gold.dim_driver dr on ds.driver_id = dr.driver_id
+where r.race_round <> -1
+order by season, r.race_round , points desc
 ```
 
 ### Campeonatos de constructores por temporada
@@ -247,62 +224,68 @@ ORDER BY rs.date_id DESC, rs.points DESC;
 ```sql
 CREATE OR REPLACE VIEW f1_gold.vw_constructor_standings
 AS 
-WITH ranked_standings AS (
-         SELECT cs.constructor_id,
-            c.constructor_name,
-            c.constructor_nationality,
-            cs.points,
-            cs.wins,
-            cs.rank,
-            cs.race_id,
-            dd.year AS race_year,
-            cs.date_id,
-            row_number() OVER (PARTITION BY cs.constructor_id, dd.year ORDER BY cs.date_id DESC) AS rn
-           FROM f1_gold.fact_constructor_standings cs
-           LEFT JOIN f1_gold.dim_date dd ON cs.date_id = dd.date_id
-           LEFT JOIN f1_gold.dim_constructor c ON cs.constructor_id = c.constructor_id
-)
-select distinct
-    rs.race_id,
-    rs.date_id,
-    rs.race_year,
-    rs.rank,
-    dc.constructor_id,
-    rs.constructor_name,
-    rs.constructor_nationality,
-    rs.points,
-    rs.wins
-FROM ranked_standings rs
-LEFT JOIN f1_gold.fact_race_results frr ON rs.constructor_id = frr.constructor_id AND rs.race_id = frr.race_id
-JOIN f1_gold.dim_constructor dc ON frr.constructor_id = dc.constructor_id
-WHERE rs.rn = 1
-ORDER BY rs.date_id DESC, rs.points DESC;
+SELECT 
+    d."year" as season,
+    r.race_round,
+    r.race_name,
+    cs."rank" as pos,
+    dc.constructor_name as team,
+    cs.points -- Puntos acumulados hasta esa fecha  
+FROM f1_gold.fact_constructor_standings cs
+LEFT JOIN f1_gold.dim_race r ON cs.race_id = r.race_id
+LEFT JOIN f1_gold.dim_date d ON r.race_date = d."date" 
+LEFT JOIN f1_gold.dim_constructor dc ON cs.constructor_id = dc.constructor_id
+WHERE r.race_round <> -1
+ORDER BY season, r.race_round , points DESC
 ```
 
 ### Campeonatos de pilotos histórico
 
 ```sql
-create or replace view vw_drivers_championships AS
-select distinct driver_id, driver_name, count(*) as total_championships
-from f1_gold.vw_driver_standings
-where "rank" = 1
-group by driver_id, driver_name
-order by total_championships desc;
+create or replace view vw_drivers_championships
+as
+with last_race_per_season AS (
+    -- 1. Identificamos cuál es la última ronda (round) de cada año
+    select 
+        d."year" as season_year,
+        MAX(r.race_round) as last_round
+    from f1_gold.dim_race r
+    inner join f1_gold.dim_date d on r.race_date = d."date" 
+    group by d."year"
+)
+select count(*) total_champ, driver
+from f1_gold.vw_drivers_standings ds
+inner join last_race_per_season lr 
+    on ds.season = lr.season_year and ds.race_round = lr.last_round
+where pos = 1
+group by driver
+order by total_champ desc;
 ```
 
 ### Campeonatos de constructores histórico
 
 ```sql
-CREATE OR REPLACE VIEW f1_gold.vw_constructors_championships
-AS 
-SELECT distinct
-  constructor_id,
-  constructor_name,
-  count(*) AS total_championships
-FROM f1_gold.vw_constructor_standings
-WHERE "rank" = 1
-GROUP BY constructor_id, constructor_name
-ORDER BY total_championships DESC;
+create or replace view vw_constructors_championships
+as
+with last_race_per_season AS (
+    select 
+        d."year" as season_year,
+        MAX(r.race_round) as last_round
+    from f1_gold.dim_race r
+    inner join f1_gold.dim_date d ON r.race_date = d."date" 
+    group by d."year"
+)
+select count(*) total_champ, 
+case 
+	when trim(team) like '%Lotus%' then 'Lotus'
+	else team
+end as team
+from f1_gold.vw_constructor_standings cs
+inner join last_race_per_season lr 
+    ON cs.season = lr.season_year and cs.race_round = lr.last_round
+where pos = 1
+group by 2
+order by total_champ desc;
 ```
 
 ---
