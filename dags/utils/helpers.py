@@ -150,7 +150,7 @@ def get_spark_session() -> SparkSession:
         .config("spark.hadoop.fs.s3a.path.style.access", "true") \
         .getOrCreate()
     
-    spark.conf.set("spark.sql.session.timeZone", "America/Argentina/Buenos_Aires")
+    # spark.conf.set("spark.sql.session.timeZone", "America/Argentina/Buenos_Aires")
     
     return spark
 

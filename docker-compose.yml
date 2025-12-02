@@ -113,12 +113,12 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-    restart: on-failure  # Solo reinicia si falla
+    restart: unless-stopped  # Se reinicia automáticamente excepto si lo detienes manualmente
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
-    restart: on-failure
+    restart: unless-stopped
 
   airflow-init:
     <<: *airflow-common
@@ -130,6 +130,7 @@ services:
       _AIRFLOW_WWW_USER_CREATE: 'true'
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+    restart: "no"
 
   spark:
     image: lpoletto/spark:spark_3_4_1
@@ -153,6 +154,7 @@ services:
       - ./data/raw:/opt/airflow/data/raw
       - ./data/staging:/opt/airflow/data/staging
       - ./data/processed:/opt/airflow/data/processed
+    restart: unless-stopped
   
   spark-worker:
     image: lpoletto/spark:spark_3_4_1
@@ -175,6 +177,7 @@ services:
       - ./data/raw:/opt/airflow/data/raw
       - ./data/staging:/opt/airflow/data/staging
       - ./data/processed:/opt/airflow/data/processed
+    restart: unless-stopped
 
   # -----------------------------------------------------------
   # MySQL
@@ -214,6 +217,7 @@ services:
     env_file:
       - .env
     command: server /data --console-address ":9001"
+    restart: unless-stopped
     # networks:
     #   - data-network
 
@@ -238,7 +242,7 @@ services:
       - mysql
       - minio
       - postgres
-    restart: on-failure
+    restart: "no"
 
 volumes:
   postgres_data:
