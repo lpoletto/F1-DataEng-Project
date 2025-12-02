@@ -18,7 +18,7 @@ Solución End-to-End de Ingeniería de Datos inspirada en la Fórmula 1, integra
 - Docker y Docker Compose instalados.
 - Acceso a DockerHub para descargar imágenes.
 - Conexión a internet para descargar drivers y dependencias.
-
+- Configurar servidor SMPT de Gmail para enviar correos. Link: [Enviar correos con el servidor SMTP de Gmail](https://support.google.com/a/answer/176600?hl=es)
 ---
 
 ## ⚠️ Configuración del archivo `.env`
