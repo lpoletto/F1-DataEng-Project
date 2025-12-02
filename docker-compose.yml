@@ -87,12 +87,10 @@ services:
   postgres:
     image: postgres:15
     hostname: postgres
-    env_file:
-      - .env
-    # environment:
-    #   POSTGRES_USER: airflow
-    #   POSTGRES_PASSWORD: airflow
-    #   POSTGRES_DB: airflow
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-airflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-airflow}
+      POSTGRES_DB: airflow
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -120,7 +118,7 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
-    restart: no  # Inicia manualmente cuando lo necesites
+    restart: on-failure
 
   airflow-init:
     <<: *airflow-common
