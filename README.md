@@ -11,12 +11,91 @@ Solución End-to-End de Ingeniería de Datos inspirada en la Fórmula 1, integra
 
 ---
 
+
 ## 📋 Prerrequisitos
 
+- VsCode o cualquier editor de código.
 - Docker y Docker Compose instalados.
 - Acceso a DockerHub para descargar imágenes.
 - Conexión a internet para descargar drivers y dependencias.
-- (🛠️⚠️ En desarrollo...)
+
+---
+
+## ⚠️ Configuración del archivo `.env`
+
+Antes de levantar los servicios, revisa y modifica las variables sensibles en el archivo `.env`:
+
+- Cambia las contraseñas, usuarios y correos por valores seguros y propios.
+- No compartas el archivo `.env` con credenciales reales en repositorios públicos.
+
+---
+
+## 🔌 Configuración de Puertos
+
+Asegúrate de que los siguientes puertos estén libres en tu máquina local antes de iniciar los servicios:
+
+- Airflow: 8080
+- MinIO Console: 9001
+- MinIO API: 9000
+- Spark: 7077
+- Postgres: 5432
+- MySQL: 3306
+- Jupyter Lab: 8888
+
+Si algún puerto está ocupado, modifícalo en el `docker-compose.yml` y en las variables de entorno correspondientes.
+
+---
+
+## 🛠️ Servicios y Puertos
+
+Una vez levantados los servicios, estarán disponibles en:
+
+| Servicio         | Puerto | URL                              | Credenciales                              |
+|------------------|--------|----------------------------------|-------------------------------------------|
+| Airflow Web UI   | 8080   | [http://localhost:8080](http://localhost:8080) | User: `airflow` / Pass: `airflow`         |
+| Jupyter Lab      | 8888   | [http://localhost:8888](http://localhost:8888/?token=dev) | Token: `dev`                              |
+| MinIO Console    | 9001   | [http://localhost:9001](http://localhost:9001) | User: `minio` / Pass: `minio123`          |
+| MinIO API        | 9000   | [http://localhost:9000](http://localhost:9000) | -                                         |
+| PostgreSQL       | 5432   | `localhost:5432`                  | User: `airflow` / Pass: `airflow`          |
+| MySQL            | 3306   | `localhost:3306`                  | User: `f1user` / Pass: `f1password`        |
+
+---
+
+## 🗝️ Credenciales de Ejemplo
+
+**Airflow:**
+- Usuario: `airflow`
+- Contraseña: `airflow`
+
+**MinIO:**
+- Usuario: `minio`
+- Contraseña: `minio123`
+
+**Jupyter Lab:**
+- Token: `dev`
+
+**Postgres:**
+- Usuario: `airflow`
+- Contraseña: `airflow`
+
+**MySQL:**
+- Usuario: `f1user`
+- Contraseña: `f1password`
+
+Modifica estos valores en `.env` y en las interfaces de conexión según tus necesidades.
+
+---
+
+## 📚 Referencias y Documentación Oficial
+
+- [Apache Airflow](https://airflow.apache.org/docs/)
+- [Apache Spark](https://spark.apache.org/docs/latest/)
+- [MinIO](https://min.io/docs/minio/linux/index.html)
+- [Docker](https://docs.docker.com/)
+- [PostgreSQL](https://www.postgresql.org/docs/)
+- [MySQL](https://dev.mysql.com/doc/)
+
+Consulta estos enlaces para detalles avanzados y solución de problemas.
 
 ---
 
@@ -41,12 +120,12 @@ Solución End-to-End de Ingeniería de Datos inspirada en la Fórmula 1, integra
    AIRFLOW_UID=50000
 
    # Variables para Postgres
-   POSTGRES_HOST=postgres # YOUR_POSTGRES_HOST
-   POSTGRES_PORT=5432 # YOUR_POSTGRES_PORT
-   POSTGRES_DB=postgres # YOUR_POSTGRES_DB
-   POSTGRES_SCHEMA=public # YOUR_POSTGRES_SCHEMA
-   POSTGRES_USER=airflow # YOUR_POSTGRES_USER
-   POSTGRES_PASSWORD=airflow # YOUR_POSTGRES_PASSWORD
+   POSTGRES_HOST=YOUR_POSTGRES_HOST
+   POSTGRES_PORT=YOUR_POSTGRES_PORT
+   POSTGRES_DB=YOUR_POSTGRES_DB
+   POSTGRES_SCHEMA=YOUR_POSTGRES_SCHEMA
+   POSTGRES_USER=YOUR_POSTGRES_USER
+   POSTGRES_PASSWORD=YOUR_POSTGRES_PASSWORD
    POSTGRES_URL="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"
    DRIVER_PATH=/tmp/drivers/postgresql-42.5.2.jar,/tmp/drivers/mysql-connector-j-8.0.32.jar,/tmp/drivers/hadoop-aws-3.3.1.jar,/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar
 
@@ -83,6 +162,14 @@ Solución End-to-End de Ingeniería de Datos inspirada en la Fórmula 1, integra
    SMTP_USER=tu_mail@gmail.com
    SMTP_PASSWORD="tu_app_password_de_16_caracteres"
    SMTP_MAIL_FROM=tu_mail@gmail.com
+
+   # Variables para JupyterPySpark
+   JUPYTER_ENABLE_LAB='1'
+   JUPYTER_TOKEN='dev'
+   NB_USER=dev
+   NB_GID=1000
+   CHOWN_HOME='yes'
+   CHOWN_HOME_OPTS='-R'
    ```
 
 4. Descargar Drivers JDBC y JARs
@@ -119,7 +206,8 @@ wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.375/a
 
 8. Una vez que los servicios estén levantados, ingresar a Airflow en `http://localhost:8080/`.
 
-9. En la pestaña `Admin -> Connections` crear una nueva conexión con los siguientes datos para Postgres:
+9. **Conexión a PostgreSQL**
+En la pestaña `Admin -> Connections` crear una nueva conexión con los siguientes datos para Postgres:
     * Conn Id: `postgres_default`
     * Conn Type: `Postgres`
     * Host: `postgres` (El nombre del servicio de PostgreSQL (ej. *postgres*), o *host.docker.internal* si la base de datos está fuera de la red Docker.)
@@ -170,9 +258,21 @@ wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.375/a
     * Key: `processed_data_dir`
     * Value: `/opt/airflow/data/processed`
 
+17. En la pestaña `Admin -> Variables` crear las variables con los siguientes datos:
+    * Key: `dags_dir`
+    * Value: `/opt/airflow/dags`
+
+18. En la pestaña `Admin -> Variables` crear las variables con los siguientes datos:
+    * Key: `gold_bucket_path`
+    * Value: `s3a://gold`
+
+19. En la pestaña `Admin -> Variables` crear las variables con los siguientes datos:
+    * Key: `gold_bucket_name`
+    * Value: `gold`
+
     **Nota:** Añadir cualquier otra variable que consideren necesaria para sus scripts o DAGs, dependiendo de los requerimientos específicos del proyecto.
 
-17. Ejecutar el DAG: `start_up_init.py` para configurar el entorno de datos (db,schemas,buckets).
+20. Ejecutar el DAG: `start_up_init.py` para configurar el entorno de datos (db,schemas,buckets).
 
 ## 🐋 Comandos utilies de Docker
 Si experimienta algun fallo o que no se visualice algun dag, reiniciar los servicios:
@@ -195,7 +295,12 @@ docker compose up -d
 
 ---
 
+
 ## 📊 Consultas SQL de Ejemplo
+
+### Esquema Copo de Nieve (Star Snowflake)
+
+![star-snowflake](star-snowflake.png)
 
 Ejemplos de queries para analizar los datos en las vistas del Data Warehouse:
 
