@@ -14,6 +14,7 @@ Solución End-to-End de Ingeniería de Datos inspirada en la Fórmula 1, integra
 ## 📋 Prerrequisitos
 
 - VsCode o cualquier editor de código.
+- [PgAdmin](https://www.pgadmin.org/) o [DBeaver](https://dbeaver.io/)
 - Docker y Docker Compose instalados.
 - Acceso a DockerHub para descargar imágenes.
 - Conexión a internet para descargar drivers y dependencias.
@@ -270,9 +271,13 @@ En la pestaña `Admin -> Connections` crear una nueva conexión con los siguient
     * Key: `gold_bucket_name`
     * Value: `gold`
 
+20. En la pestaña `Admin -> Variables` crear las variables con los siguientes datos:
+    * Key: `end_date`
+    * Value: `2024-11-23`
+
     **Nota:** Añadir cualquier otra variable que consideren necesaria para sus scripts o DAGs, dependiendo de los requerimientos específicos del proyecto.
 
-20. Ejecutar el DAG: `start_up_init.py` para configurar el entorno de datos (db,schemas,buckets).
+21. Ejecutar el DAG: `start_up_init.py` para configurar el entorno de datos (db,schemas,buckets).
 
 ## 🐋 Comandos utilies de Docker
 Si experimienta algun fallo o que no se visualice algun dag, reiniciar los servicios:
