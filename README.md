@@ -1,4 +1,3 @@
-(🛠️⚠️ En desarrollo...)
 # F1-DataEng-Project 🏎️ 🏁
 
 Solución End-to-End de Ingeniería de Datos inspirada en la Fórmula 1, integrando tecnologías open source para ingesta, procesamiento, almacenamiento y análisis de datos. El diseño es escalable y modular, permitiendo ejecución local con Docker y fácil migración a la nube (AWS u otros).
@@ -404,3 +403,15 @@ order by total_champ desc;
 **Notas:**
 - Revisa los valores de las variables y rutas según tu entorno.
 - Consulta la documentación oficial de cada tecnología para detalles avanzados.
+
+## 👥 Autor
+
+- Lautaro G. Poletto
+- 👉 [GitHub](https://github.com/lpoletto)
+- 👉 [LinkedIn](https://www.linkedin.com/in/lautaro-poletto/)
+
+## 📦 Recursos y Créditos
+
+- [Ergast API](https://www.kaggle.com/datasets/jtrotman/formula-1-race-data) por proporcionar los datos de Fórmula 1
+- Curso de Udemy [Azure Databricks & Spark For Data Engineers:Hands-on Project by Ramesh Retnasamy](https://www.udemy.com/share/104Rz63@ivD4mv9oQ4c1rWeWPH7FKhwYqyL__CqO5uVRBUvxzBnvR79hKgvzcKq3UUKxvNiz/)
+- Curso de Udemy [Apache Airflow: The Hands-On Guide by Marc Lamberti](https://www.udemy.com/course/the-ultimate-hands-on-course-to-master-apache-airflow/)
