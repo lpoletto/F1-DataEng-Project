@@ -217,6 +217,29 @@ services:
     # networks:
     #   - data-network
 
+  jupyter:
+    image: jupyter/pyspark-notebook:2023-04-24
+    hostname: jupyter
+    env_file:
+      - .env
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/develop/notebooks
+      - ./spark_drivers/postgresql-42.5.2.jar:/tmp/drivers/postgresql-42.5.2.jar
+      - ./spark_drivers/mysql-connector-j-8.0.32.jar:/tmp/drivers/mysql-connector-j-8.0.32.jar
+      - ./spark_drivers/hadoop-aws-3.3.1.jar:/tmp/drivers/hadoop-aws-3.3.1.jar
+      - ./spark_drivers/aws-java-sdk-bundle-1.11.375.jar:/tmp/drivers/aws-java-sdk-bundle-1.11.375.jar
+      - ./data/raw:/home/develop/data/raw
+      - ./data/staging:/home/develop/data/staging
+      - ./data/processed:/home/develop/data/processed
+    depends_on:
+      - spark
+      - mysql
+      - minio
+      - postgres
+    restart: on-failure
+
 volumes:
   postgres_data:
   mysql_data:
