@@ -87,10 +87,12 @@ services:
   postgres:
     image: postgres:15
     hostname: postgres
-    environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+    env_file:
+      - .env
+    # environment:
+    #   POSTGRES_USER: airflow
+    #   POSTGRES_PASSWORD: airflow
+    #   POSTGRES_DB: airflow
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
