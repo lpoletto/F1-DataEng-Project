@@ -205,10 +205,13 @@ Ejemplos de queries para analizar los datos en las vistas del Data Warehouse:
 create or replace view f1_gold.vw_drivers_standings
 as
 select 
+    d.date_id,
     d."year" as season,
+    r.race_id
     r.race_round,
     r.race_name,
     ds."rank" as pos,
+    dr.driver_id,
     dr.driver_name as driver,
     ds.points -- Puntos acumulados hasta esa fecha  
 from f1_gold.fact_driver_standings ds
@@ -225,10 +228,13 @@ order by season, r.race_round , points desc
 CREATE OR REPLACE VIEW f1_gold.vw_constructor_standings
 AS 
 SELECT 
+    d.date_id,
     d."year" as season,
+    r.race_id
     r.race_round,
     r.race_name,
     cs."rank" as pos,
+    cs.constructor_id
     dc.constructor_name as team,
     cs.points -- Puntos acumulados hasta esa fecha  
 FROM f1_gold.fact_constructor_standings cs
