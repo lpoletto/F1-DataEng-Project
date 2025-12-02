@@ -173,9 +173,10 @@ Consulta estos enlaces para detalles avanzados y solución de problemas.
 
 4. Descargar Drivers JDBC y JARs
 
-Ve al directorio `spark_drivers` y descargar los JARs necesarios:
+Crear el directorio `spark_drivers` y descargar los JARs necesarios:
 
 ```bash
+mkdir spark_drivers
 cd /spark_drivers
 ```
 
