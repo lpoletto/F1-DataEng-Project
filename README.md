@@ -119,7 +119,7 @@ Consulta estos enlaces para detalles avanzados y solución de problemas.
    AIRFLOW_UID=50000
 
    # Variables para Postgres
-   POSTGRES_HOST=YOUR_POSTGRES_HOST
+   POSTGRES_HOST=postgres
    POSTGRES_PORT=YOUR_POSTGRES_PORT
    POSTGRES_DB=YOUR_POSTGRES_DB
    POSTGRES_SCHEMA=YOUR_POSTGRES_SCHEMA
