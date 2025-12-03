@@ -317,7 +317,7 @@ as
 select 
     d.date_id,
     d."year" as season,
-    r.race_id
+    r.race_id,
     r.race_round,
     r.race_name,
     ds."rank" as pos,
@@ -340,7 +340,7 @@ AS
 SELECT 
     d.date_id,
     d."year" as season,
-    r.race_id
+    r.race_id,
     r.race_round,
     r.race_name,
     cs."rank" as pos,
